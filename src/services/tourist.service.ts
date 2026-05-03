@@ -241,7 +241,7 @@ class TouristService {
             tourist.emailOtpExpires = undefined;
             await tourist.save();
 
-            await emailService.sendWelcomeEmail(tourist.email, tourist.firstName, tourist.lastName);
+            await emailService.sendWelcomeEmail(tourist.email!, tourist.firstName!, tourist.lastName!);
 
             return {
                 error: false,

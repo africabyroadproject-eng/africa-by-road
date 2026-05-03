@@ -1,13 +1,14 @@
 //contestant.model.ts
-import mongoose, { Schema, Document } from 'mongoose';
+import mongoose, { Schema, Document, Types } from 'mongoose';
 
 export interface IContestant extends Document {
     name: string;
     country: string;
     bio: string;
-    votes: number;
     imageUrl: string;
-    status: 'active' | 'eliminated' | 'winner';
+    createdBy: Types.ObjectId;
+    votes: number;
+    status: 'pending' | 'active' | 'eliminated' | 'winner';
     createdAt: Date;
     updatedAt: Date;
 }
@@ -17,11 +18,14 @@ const contestantSchema = new Schema<IContestant>(
         name: { type: String, required: true, trim: true },
         country: { type: String, required: true, trim: true },
         bio: { type: String, required: true },
-        votes: { type: Number, default: 0 },
         imageUrl: { type: String, required: true },
-        status: { type: String, enum: ['active', 'eliminated', 'winner'], default: 'active' }
+        createdBy: { type: Schema.Types.ObjectId, ref: 'Tourist', required: true },
+        votes: { type: Number, default: 0 },
+        status: { type: String, enum: ['pending', 'active', 'eliminated', 'winner'], default: 'pending' }
     },
-    { timestamps: true }
+    {
+        timestamps: true
+    }
 );
 
 contestantSchema.index({ votes: -1 });

@@ -7,6 +7,13 @@ import cookieParser from 'cookie-parser';
 import appRoutes from '../routes/app.routes';
 import publicRoutes from '../routes/public.routes';
 import paymentsRoutes from '../routes/payments.routes';
+import profileRoutes from '../routes/profile.routes';
+import communityRoutes from '../routes/community.routes';
+import giveawaysRoutes from '../routes/giveaway.routes';
+import swaggerUi from 'swagger-ui-express';
+import { swaggerSpec } from './swagger';
+import { auditLog } from '../middleware/audit.mw';
+import { errorHandler, notFoundHandler } from '../middleware/errorHandler.mw';
 
 
 dotenv.config();
@@ -25,11 +32,23 @@ connectDB()
 
 app.use(express.json());
 app.use(cookieParser());
-// Mount your auth routes with a base path
+app.use(auditLog);
+
+// Mount routes
 app.use('/api/auth', authRoutes);
 app.use('/api/app', appRoutes);
 app.use('/api/public', publicRoutes);
 app.use('/api/payments', paymentsRoutes);
+app.use('/api/profile', profileRoutes);
+app.use('/api/community', communityRoutes);
+app.use('/api/giveaway', giveawaysRoutes);
+
+// Swagger docs
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+app.get('/api-docs.json', (_, res) => {
+    res.json(swaggerSpec);
+});
+
 // Optionally add a health check route
 app.get('/', (_, res) => {
     res.send('Africa By Road API is running');
@@ -38,8 +57,10 @@ app.get('/', (_, res) => {
 // Serve static files from the public directory
 app.use(express.static('public'));
 
-// Optionally add error handler later
-// app.use(errorHandler);
+// Error handling
+app.use(notFoundHandler);
+app.use(errorHandler);
+
 const mongoURI = process.env.MONGODB_URI;
 
 if (!mongoURI) {

@@ -63,3 +63,30 @@ export interface EmailOtpVerifyDto {
 export interface GoogleVerifyDto {
     idToken: string;
 }
+
+// Profile DTOs
+export interface PersonalInfoDto {
+    firstName?: string;
+    middleName?: string;
+    lastName?: string;
+    dateOfBirth?: string;
+    nationality?: string;
+    state?: string;
+    city?: string;
+    residentialAddress?: string;
+    phoneNumber?: string;
+}
+
+export interface SocialMediaDto {
+    instagram?: string;
+    facebook?: string;
+    twitter?: string;
+    tiktok?: string;
+    youtube?: string;
+}
+
+export interface DocumentDto {
+    type: 'governmentId' | 'proofOfAddress' | 'medicalRecords';
+    name: string;
+    url: string;
+}

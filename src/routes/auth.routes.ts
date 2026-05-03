@@ -1,3 +1,65 @@
+/**
+ * @swagger
+ * /api/auth/register:
+ *   post:
+ *     summary: Register a new tourist
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - email
+ *               - password
+ *               - firstName
+ *               - lastName
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 format: email
+ *               password:
+ *                 type: string
+ *               firstName:
+ *                 type: string
+ *               lastName:
+ *                 type: string
+ *               phoneNumber:
+ *                 type: string
+ *               nationality:
+ *                 type: string
+ *     responses:
+ *       201:
+ *         description: Tourist registered
+ *       400:
+ *         description: Validation error
+ *
+ * /api/auth/login:
+ *   post:
+ *     summary: Login tourist
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - email
+ *               - password
+ *             properties:
+ *               email:
+ *                 type: string
+ *               password:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Login successful
+ *       401:
+ *         description: Invalid credentials
+ */
+
 //auth.routes.ts
 import { Router } from 'express';
 import { AuthController } from '../controllers/auth.controller';

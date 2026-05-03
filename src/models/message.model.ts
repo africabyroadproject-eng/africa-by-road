@@ -11,7 +11,7 @@ export interface IMessage extends Document {
     author: Types.ObjectId;
     content: string;
     attachments?: IAttachment[];
-    reactionLikes: number;
+    likes: Types.ObjectId[];
     createdAt: Date;
     updatedAt: Date;
 }
@@ -27,7 +27,7 @@ const messageSchema = new Schema<IMessage>(
         author: { type: Schema.Types.ObjectId, ref: 'Tourist', required: true },
         content: { type: String, required: true },
         attachments: [attachmentSchema],
-        reactionLikes: { type: Number, default: 0 }
+        likes: [{ type: Schema.Types.ObjectId, ref: 'Tourist' }]
     },
     { timestamps: true }
 );

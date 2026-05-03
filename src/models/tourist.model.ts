@@ -1,28 +1,54 @@
 //tourist.model.ts
 import mongoose, { Schema, Document } from 'mongoose';
 
+export interface IDocument {
+    name: string;
+    url: string;
+    uploadedAt?: Date;
+}
+
+export interface ISocialMedia {
+    instagram?: string;
+    facebook?: string;
+    twitter?: string;
+    tiktok?: string;
+    youtube?: string;
+}
+
+import { Types } from 'mongoose';
+
 export interface ITourist extends Document {
     email: string;
     password: string;
     firstName: string;
-    lastName: string;
+    middleName?: string;
+    lastName?: string;
     phoneNumber?: string;
     nationality?: string;
-    role: string;
+    state?: string;
+    city?: string;
+    residentialAddress?: string;
+    dateOfBirth?: Date;
+    role: 'tourist';
     isEmailVerified: boolean;
     emailVerificationToken?: string;
     emailVerificationExpires?: Date;
     passwordResetToken?: string;
     passwordResetExpires?: Date;
-    // OTP-based verification fields
     emailOtpCode?: string;
     emailOtpExpires?: Date;
-    // Onboarding and membership flags
     authProvider?: 'password' | 'google';
     isPaid?: boolean;
+    paymentReference?: string;
+    paymentDate?: Date;
     isCommunityMember?: boolean;
     isOnboarded?: boolean;
-    isContestant?: boolean;
+    contestantProfile?: Types.ObjectId;
+    socialMedia?: ISocialMedia;
+    governmentId?: IDocument;
+    proofOfAddress?: IDocument;
+    medicalRecords?: IDocument;
+    registrationStatus: 'pending' | 'in_progress' | 'complete';
     createdAt: Date;
     updatedAt: Date;
 }
@@ -45,6 +71,10 @@ const touristSchema = new Schema<ITourist>(
             required: true,
             trim: true
         },
+        middleName: {
+            type: String,
+            trim: true
+        },
         lastName: {
             type: String,
             required: true,
@@ -58,6 +88,21 @@ const touristSchema = new Schema<ITourist>(
             type: String,
             trim: true
         },
+        state: {
+            type: String,
+            trim: true
+        },
+        city: {
+            type: String,
+            trim: true
+        },
+        residentialAddress: {
+            type: String,
+            trim: true
+        },
+        dateOfBirth: {
+            type: Date
+        },
         role: {
             type: String,
             default: 'tourist',
@@ -69,7 +114,7 @@ const touristSchema = new Schema<ITourist>(
         },
         emailVerificationToken: {
             type: String,
-            select: false // Don't include in queries by default
+            select: false
         },
         emailVerificationExpires: {
             type: Date,
@@ -100,6 +145,12 @@ const touristSchema = new Schema<ITourist>(
             type: Boolean,
             default: false
         },
+        paymentReference: {
+            type: String
+        },
+        paymentDate: {
+            type: Date
+        },
         isCommunityMember: {
             type: Boolean,
             default: false
@@ -108,9 +159,36 @@ const touristSchema = new Schema<ITourist>(
             type: Boolean,
             default: false
         },
-        isContestant: {
-            type: Boolean,
-            default: false
+        contestantProfile: {
+            type: Schema.Types.ObjectId,
+            ref: 'Contestant'
+        },
+        socialMedia: {
+            instagram: String,
+            facebook: String,
+            twitter: String,
+            tiktok: String,
+            youtube: String
+        },
+        governmentId: {
+            name: String,
+            url: String,
+            uploadedAt: Date
+        },
+        proofOfAddress: {
+            name: String,
+            url: String,
+            uploadedAt: Date
+        },
+        medicalRecords: {
+            name: String,
+            url: String,
+            uploadedAt: Date
+        },
+        registrationStatus: {
+            type: String,
+            enum: ['pending', 'in_progress', 'complete'],
+            default: 'pending'
         }
     },
     {

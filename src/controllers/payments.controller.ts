@@ -68,7 +68,6 @@ export class PaymentsController {
 
             tourist.isPaid = true;
             tourist.isCommunityMember = true;
-            tourist.isContestant = true;
             await tourist.save();
 
             res.status(200).json({ message: 'Payment processed' });
