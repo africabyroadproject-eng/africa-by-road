@@ -16,7 +16,7 @@ class EmailService {
 
     constructor() {
         this.apiKey = process.env.SENDGRID_API_KEY || '';
-        this.fromEmail = process.env.FROM_EMAIL || 'Africabyroadproject@gmail.com';
+        this.fromEmail = process.env.EMAIL_FROM || 'Africabyroadproject@gmail.com';
         this.baseUrl = process.env.BASE_URL || 'http://localhost:3000';
         
         if (this.apiKey) {
