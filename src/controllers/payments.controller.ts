@@ -1,14 +1,14 @@
 import { Request, Response } from 'express';
-import { paymentService } from '../services/payment.service';
+import { meCashService } from '../services/mecash.service';
 import { Tourist } from '../models/tourist.model';
 
 export class PaymentsController {
     public async createCheckout(req: Request, res: Response): Promise<void> {
         try {
-            const { email, fullName, phoneNumber, country, gateway } = req.body;
+            const { email, phoneNumber } = req.body;
 
-            if (!email || !fullName || !phoneNumber) {
-                res.status(400).json({ message: 'Email, fullName, and phoneNumber are required' });
+            if (!email) {
+                res.status(400).json({ message: 'Email is required' });
                 return;
             }
 
@@ -23,24 +23,35 @@ export class PaymentsController {
                 return;
             }
 
-            // Update basic details before checkout
-            const [firstName, ...rest] = fullName.trim().split(' ');
-            tourist.firstName = firstName;
-            tourist.lastName = rest.join(' ') || tourist.lastName;
-            tourist.phoneNumber = phoneNumber;
-            await tourist.save();
+            if (phoneNumber) {
+                tourist.phoneNumber = phoneNumber;
+                await tourist.save();
+            }
 
-            const options = paymentService.getGatewayOptions(country);
-            const chosenGateway = gateway || options.preferred;
-            // Stub checkout URL generation
-            const checkoutUrl = `https://checkout.example/${chosenGateway}?email=${encodeURIComponent(email)}&country=${options.country}`;
+            const reference = meCashService.generateReference();
+            const callbackUrl = process.env.PAYMENT_CALLBACK_URL || 'http://localhost:3000/api/payments/callback';
+
+            const result = await meCashService.initializePayment({
+                amount: 5000,
+                currency: 'NGN',
+                email,
+                reference,
+                callbackUrl,
+                description: 'Africa By Road Registration - $50 USD'
+            });
+
+            if (!result.status) {
+                res.status(500).json({ message: result.message || 'Failed to initiate payment' });
+                return;
+            }
 
             res.status(200).json({
                 message: 'Checkout initiated',
                 data: {
-                    checkoutUrl,
-                    gateway: chosenGateway,
-                    currency: options.currency
+                    checkoutUrl: result.data?.paymentUrl,
+                    reference: result.data?.reference,
+                    amount: 5000,
+                    currency: 'NGN'
                 }
             });
             return;
@@ -51,31 +62,51 @@ export class PaymentsController {
         }
     }
 
-    // Webhook: mark paid and contestant membership (removed Contestant model references)
+    public async verifyPayment(req: Request<{}, {}, { reference: string }>, res: Response): Promise<void> {
+        try {
+            const { reference } = req.body;
+            if (!reference) {
+                res.status(400).json({ message: 'Reference is required' });
+                return;
+            }
+
+            const result = await meCashService.verifyPayment(reference);
+
+            res.status(200).json({
+                message: result.status ? 'Payment verified' : 'Payment not found',
+                data: result.data
+            });
+            return;
+        } catch (error: unknown) {
+            const errorMessage = error instanceof Error ? error.message : 'Verification failed';
+            res.status(500).json({ message: errorMessage });
+            return;
+        }
+    }
+
     public async webhook(req: Request, res: Response): Promise<void> {
         try {
-            const { email, status } = req.body;
-            if (!email || status !== 'success') {
-                res.status(400).json({ message: 'Invalid webhook payload' });
-                return;
-            }
-
-            const tourist = await Tourist.findOne({ email });
-            if (!tourist) {
-                res.status(404).json({ message: 'Tourist not found' });
-                return;
-            }
-
-            tourist.isPaid = true;
-            tourist.isCommunityMember = true;
-            await tourist.save();
-
-            res.status(200).json({ message: 'Payment processed' });
+            await meCashService.handleWebhook(req.body);
+            res.status(200).json({ message: 'Webhook processed' });
             return;
         } catch (error: unknown) {
             const errorMessage = error instanceof Error ? error.message : 'Webhook handling failed';
             res.status(500).json({ message: 'Webhook handling failed', error: errorMessage });
             return;
+        }
+    }
+
+    public async getPublicKey(_req: Request, res: Response): Promise<void> {
+        try {
+            res.status(200).json({
+                data: {
+                    publicKey: meCashService.getPublicKey(),
+                    isConfigured: meCashService.isConfigured()
+                }
+            });
+            return;
+        } catch (error) {
+            res.status(500).json({ message: 'Failed to get public key' });
         }
     }
 }

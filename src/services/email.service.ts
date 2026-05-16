@@ -16,7 +16,7 @@ class EmailService {
 
     constructor() {
         this.apiKey = process.env.SENDGRID_API_KEY || '';
-        this.fromEmail = process.env.FROM_EMAIL || 'info@africabyroad.com';
+        this.fromEmail = process.env.FROM_EMAIL || 'Africabyroadproject@gmail.com';
         this.baseUrl = process.env.BASE_URL || 'http://localhost:3000';
         
         if (this.apiKey) {
@@ -266,6 +266,7 @@ class EmailService {
             };
 
             await this.sendEmail(emailOptions);
+            console.log('OTP email sent successfully to:', email, 'code:', otpCode);
             return true;
         } catch (error) {
             console.error('Error sending OTP email:', error);
