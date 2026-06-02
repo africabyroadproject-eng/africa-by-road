@@ -27,30 +27,21 @@ class GoogleAuthService {
 
     public async verifyIdToken(idToken: string): Promise<TokenPayload | null> {
         try {
-            console.log('Attempting to verify Google ID token...');
-            console.log('Token length:', idToken?.length);
-            console.log('Using audience:', process.env.GOOGLE_CLIENT_ID);
-            
-            // Allow any audience in development mode for testing
-            const options: {idToken: string; audience?: string} = { idToken };
-            
-            if (process.env.NODE_ENV !== 'development') {
-                options.audience = process.env.GOOGLE_CLIENT_ID;
-            } else {
-                console.log('Development mode: skipping audience validation');
+            const clientId = process.env.GOOGLE_CLIENT_ID;
+            if (!clientId) {
+                console.error('GOOGLE_CLIENT_ID not configured');
+                return null;
             }
-            
-            const ticket = await this.client.verifyIdToken(options);
+
+            const ticket = await this.client.verifyIdToken({
+                idToken,
+                audience: clientId,
+            });
             
             const payload = ticket.getPayload();
-            console.log('Token verification successful. Email:', payload?.email);
             return payload || null;
         } catch (error) {
             console.error('Failed to verify Google id_token:', error);
-            if (error instanceof Error) {
-                console.error('Error details:', error.message);
-                console.error('Error stack:', error.stack);
-            }
             return null;
         }
     }

@@ -14,6 +14,21 @@ interface LoginCredentials {
     password: string;
 }
 
+function validatePassword(password: string): void {
+    if (password.length < 8) {
+        throw new Error('Password must be at least 8 characters long');
+    }
+    if (!/[A-Z]/.test(password)) {
+        throw new Error('Password must contain at least one uppercase letter');
+    }
+    if (!/[a-z]/.test(password)) {
+        throw new Error('Password must contain at least one lowercase letter');
+    }
+    if (!/\d/.test(password)) {
+        throw new Error('Password must contain at least one number');
+    }
+}
+
 class AdminService {
     public async create(data: CreateAdminDto): Promise<{ id: string; email: string; role: string }> {
         const existing = await Admin.findOne({ email: data.email.toLowerCase() });
@@ -21,6 +36,7 @@ class AdminService {
             throw new Error('Admin already exists with this email');
         }
 
+        validatePassword(data.password);
         const hashedPassword = await bcrypt.hash(data.password, 12);
 
         const admin = await Admin.create({
@@ -73,7 +89,11 @@ class AdminService {
         return Admin.find().select('-password').lean();
     }
 
-    public async toggleActive(adminId: string, isActive: boolean) {
+    public async toggleActive(adminId: string, isActive: boolean, callerRole?: string) {
+        if (callerRole !== 'superadmin') {
+            throw new Error('Only superadmins can toggle admin active status');
+        }
+
         const admin = await Admin.findByIdAndUpdate(
             adminId,
             { isActive },

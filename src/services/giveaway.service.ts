@@ -38,7 +38,7 @@ class GiveawayService {
         });
         const trivia = await TriviaResponse.findOne({
             tourist: new Types.ObjectId(touristId),
-            respondedAt: { $gte: today }
+            triviaDate: today
         });
 
         return {
@@ -50,24 +50,22 @@ class GiveawayService {
 
     public async spin(touristId: string) {
         const today = startOfDay(new Date());
-        const existing = await GiveawaySpin.findOne({
-            tourist: new Types.ObjectId(touristId),
-            gameType: 'spin',
-            spinDate: today
-        });
-        if (existing) {
-            throw new Error('You have already used your free spin today');
-        }
-
         const prize = SPIN_PRIZES[Math.floor(Math.random() * SPIN_PRIZES.length)];
-        const spin = await GiveawaySpin.create({
-            tourist: new Types.ObjectId(touristId),
-            gameType: 'spin',
-            spinDate: today,
-            prize
-        });
 
-        return { prize: spin.prize, message: 'Spin completed' };
+        try {
+            const spin = await GiveawaySpin.create({
+                tourist: new Types.ObjectId(touristId),
+                gameType: 'spin',
+                spinDate: today,
+                prize
+            });
+            return { prize: spin.prize, message: 'Spin completed' };
+        } catch (err: any) {
+            if (err.code === 11000) {
+                throw new Error('You have already used your free spin today');
+            }
+            throw err;
+        }
     }
 
     public async getTriviaQuestion() {
@@ -88,13 +86,6 @@ class GiveawayService {
 
     public async submitTriviaAnswer(touristId: string, questionId: string, selectedAnswer: number) {
         const today = startOfDay(new Date());
-        const alreadyPlayed = await TriviaResponse.findOne({
-            tourist: new Types.ObjectId(touristId),
-            respondedAt: { $gte: today }
-        });
-        if (alreadyPlayed) {
-            throw new Error('You have already played trivia today');
-        }
 
         let isCorrect = false;
         let correctAnswer = 0;
@@ -113,12 +104,20 @@ class GiveawayService {
         const prize = isCorrect ? TRIVIA_PRIZES[Math.floor(Math.random() * TRIVIA_PRIZES.length)] : 'No Win';
 
         if (questionId !== 'default') {
-            await TriviaResponse.create({
-                tourist: new Types.ObjectId(touristId),
-                questionId: new Types.ObjectId(questionId),
-                selectedAnswer,
-                isCorrect
-            });
+            try {
+                await TriviaResponse.create({
+                    tourist: new Types.ObjectId(touristId),
+                    questionId: new Types.ObjectId(questionId),
+                    selectedAnswer,
+                    isCorrect,
+                    triviaDate: today
+                });
+            } catch (err: any) {
+                if (err.code === 11000) {
+                    throw new Error('You have already played trivia today');
+                }
+                throw err;
+            }
         }
 
         if (isCorrect) {

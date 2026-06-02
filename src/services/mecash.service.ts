@@ -1,6 +1,8 @@
 //mecash.service.ts
 import { Tourist } from '../models/tourist.model';
 
+import crypto from 'crypto';
+
 export interface MeCashPaymentRequest {
     amount: number;
     currency: string;
@@ -36,12 +38,14 @@ export interface MeCashVerificationResponse {
 class MeCashService {
     private apiKey: string;
     private publicKey: string;
+    private webhookSecret: string;
     private mode: string;
     private baseUrl: string;
 
     constructor() {
         this.apiKey = process.env.MECASH_API_KEY || '';
         this.publicKey = process.env.MECASH_PUBLIC_KEY || '';
+        this.webhookSecret = process.env.MECASH_WEBHOOK_SECRET || '';
         this.mode = process.env.MECASH_MODE || 'sandbox';
         this.baseUrl = this.mode === 'sandbox'
             ? 'https://api-sandbox.me-cash.com/v1'
@@ -50,8 +54,10 @@ class MeCashService {
 
     public async initializePayment(request: MeCashPaymentRequest): Promise<MeCashPaymentResponse> {
         if (!this.apiKey) {
-            console.warn('MeCash API key not configured - running in demo mode');
-            return this.demoPayment(request);
+            return {
+                status: false,
+                message: 'MeCash API key is not configured. Set MECASH_API_KEY environment variable.'
+            };
         }
 
         try {
@@ -84,17 +90,9 @@ class MeCashService {
 
     public async verifyPayment(reference: string): Promise<MeCashVerificationResponse> {
         if (!this.apiKey) {
-            console.warn('MeCash API key not configured - running in demo mode');
             return {
-                status: true,
-                message: 'Demo verification',
-                data: {
-                    amount: 5000,
-                    currency: 'NGN',
-                    reference,
-                    status: 'success',
-                    customer: { email: 'demo@example.com' }
-                }
+                status: false,
+                message: 'MeCash API key is not configured. Set MECASH_API_KEY environment variable.'
             };
         }
 
@@ -118,11 +116,25 @@ class MeCashService {
         }
     }
 
+    public verifyWebhookSignature(rawBody: string, signature: string): boolean {
+        if (!this.webhookSecret) {
+            console.warn('MECASH_WEBHOOK_SECRET not set — webhook signature verification skipped');
+            return true;
+        }
+        const expected = crypto.createHmac('sha256', this.webhookSecret).update(rawBody).digest('hex');
+        return crypto.timingSafeEqual(Buffer.from(expected), Buffer.from(signature));
+    }
+
     public async handleWebhook(event: any): Promise<void> {
         const { reference, status, customer } = event;
 
+        if (!customer?.email) {
+            console.warn('Webhook received without customer email — skipping');
+            return;
+        }
+
         if (status === 'success') {
-            const tourist = await Tourist.findOne({ email: customer?.email });
+            const tourist = await Tourist.findOne({ email: customer.email });
             if (tourist) {
                 tourist.isPaid = true;
                 tourist.paymentReference = reference;
@@ -140,18 +152,6 @@ class MeCashService {
         const timestamp = Date.now();
         const random = Math.random().toString(36).substring(2, 10);
         return `ABR_${timestamp}_${random}`;
-    }
-
-    private demoPayment(request: MeCashPaymentRequest): MeCashPaymentResponse {
-        const demoUrl = `demo://checkout?amount=${request.amount}&email=${request.email}&ref=${request.reference}`;
-        return {
-            status: true,
-            message: 'Demo payment initiated',
-            data: {
-                paymentUrl: demoUrl,
-                reference: request.reference
-            }
-        };
     }
 
     public getPublicKey(): string {

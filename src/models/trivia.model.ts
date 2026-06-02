@@ -17,6 +17,7 @@ export interface ITriviaResponse extends Document {
     selectedAnswer: number;
     isCorrect: boolean;
     respondedAt: Date;
+    triviaDate: Date;
     createdAt: Date;
     updatedAt: Date;
 }
@@ -38,11 +39,13 @@ const triviaResponseSchema = new Schema<ITriviaResponse>(
         questionId: { type: Schema.Types.ObjectId, ref: 'TriviaQuestion', required: true },
         selectedAnswer: { type: Number, required: true },
         isCorrect: { type: Boolean, required: true },
-        respondedAt: { type: Date, default: Date.now }
+        respondedAt: { type: Date, default: Date.now },
+        triviaDate: { type: Date, required: true }
     },
     { timestamps: true }
 );
 
+triviaResponseSchema.index({ tourist: 1, triviaDate: 1 }, { unique: true });
 triviaResponseSchema.index({ tourist: 1, respondedAt: 1 });
 
 export const TriviaQuestion = mongoose.model<ITriviaQuestion>('TriviaQuestion', triviaQuestionSchema);

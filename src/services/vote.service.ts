@@ -74,28 +74,29 @@ class VoteService {
         }
 
         const today = startOfDay(new Date());
+        const touristOid = new Types.ObjectId(touristId);
+        const contestantOid = new Types.ObjectId(contestantId);
 
-        // Enforce one vote per contestant per day per user
-        const existing = await Vote.findOne({
-            tourist: new Types.ObjectId(touristId),
-            contestant: new Types.ObjectId(contestantId),
-            voteDate: today
-        });
-
-        if (existing) {
-            throw new Error('You have already voted for this contestant today');
+        try {
+            await Vote.create({
+                tourist: touristOid,
+                contestant: contestantOid,
+                voteDate: today
+            });
+        } catch (err: any) {
+            if (err.code === 11000) {
+                throw new Error('You have already voted for this contestant today');
+            }
+            throw err;
         }
 
-        await Vote.create({
-            tourist: new Types.ObjectId(touristId),
-            contestant: new Types.ObjectId(contestantId),
-            voteDate: today
-        });
+        const updated = await Contestant.findByIdAndUpdate(
+            contestantId,
+            { $inc: { votes: 1 } },
+            { new: true }
+        );
 
-        contestant.votes += 1;
-        await contestant.save();
-
-        return { message: 'Vote recorded', votes: contestant.votes };
+        return { message: 'Vote recorded', votes: updated?.votes || contestant.votes + 1 };
     }
 }
 

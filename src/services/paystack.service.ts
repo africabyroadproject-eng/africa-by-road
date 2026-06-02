@@ -1,3 +1,4 @@
+import crypto from 'crypto';
 import { Tourist } from '../models/tourist.model';
 
 export interface PaystackTransaction {
@@ -108,6 +109,11 @@ class PaystackService {
         });
 
         return response.json();
+    }
+
+    public verifyWebhookSignature(rawBody: string, signature: string): boolean {
+        const expected = crypto.createHmac('sha256', this.secretKey).update(rawBody).digest('hex');
+        return crypto.timingSafeEqual(Buffer.from(expected), Buffer.from(signature));
     }
 
     public async handleWebhook(event: string, data: PaystackTransaction): Promise<void> {

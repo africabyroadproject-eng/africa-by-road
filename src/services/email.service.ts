@@ -244,8 +244,7 @@ class EmailService {
      * Generate a 6-digit OTP code
      */
     public generateOtpCode(): string {
-        const code = Math.floor(100000 + Math.random() * 900000);
-        return String(code);
+        return String(crypto.randomInt(100000, 999999));
     }
 
     /**

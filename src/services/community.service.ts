@@ -32,26 +32,28 @@ class CommunityService {
             .sort({ createdAt: -1 })
             .limit(limit)
             .populate('author', 'firstName lastName')
-            .populate('likes', 'firstName lastName')
             .lean();
 
         const touristOid = touristId ? new Types.ObjectId(touristId) : null;
+        const messageIds = messages.map((m) => m._id);
 
-        const results = [];
-        for (const msg of messages) {
+        const replyCounts = await Reply.aggregate([
+            { $match: { messageId: { $in: messageIds } } },
+            { $group: { _id: '$messageId', count: { $sum: 1 } } }
+        ]);
+        const replyCountMap = new Map(replyCounts.map((r) => [String(r._id), r.count]));
+
+        return messages.map((msg) => {
             const likesArray = msg.likes as any[] || [];
-            const hasLiked = touristOid
-                ? likesArray.some((id) => touristOid.equals(id))
-                : false;
-            const replyCount = await Reply.countDocuments({ messageId: msg._id });
-            results.push({
+            return {
                 ...msg,
                 likeCount: likesArray.length,
-                replyCount,
-                likedByCurrentUser: hasLiked,
-            });
-        }
-        return results;
+                replyCount: replyCountMap.get(String(msg._id)) || 0,
+                likedByCurrentUser: touristOid
+                    ? likesArray.some((id) => touristOid.equals(id))
+                    : false,
+            };
+        });
     }
 
     public async searchMessages(query: string, limit = 20): Promise<any[]> {
@@ -80,24 +82,21 @@ class CommunityService {
     }
 
     public async likeMessage(messageId: string, touristId: string) {
-        const message = await Message.findById(messageId);
-        if (!message) {
-            throw new Error('Message not found');
-        }
-
         const touristOid = new Types.ObjectId(touristId);
-        const likesArray = message.likes as Types.ObjectId[];
-        const alreadyLiked = likesArray.some((id) => id.equals(touristOid));
+
+        const message = await Message.findById(messageId).select('likes').lean();
+        if (!message) throw new Error('Message not found');
+
+        const alreadyLiked = (message.likes as Types.ObjectId[]).some((id) => id.equals(touristOid));
 
         if (alreadyLiked) {
-            message.likes = likesArray.filter((id) => !id.equals(touristOid));
+            await Message.findByIdAndUpdate(messageId, { $pull: { likes: touristOid } });
         } else {
-            likesArray.push(touristOid);
-            message.likes = likesArray;
+            await Message.findByIdAndUpdate(messageId, { $addToSet: { likes: touristOid } });
         }
 
-        await message.save();
-        return { liked: !alreadyLiked, likeCount: message.likes.length };
+        const updated = await Message.findById(messageId).select('likes').lean();
+        return { liked: !alreadyLiked, likeCount: (updated?.likes as any[])?.length || 0 };
     }
 
     public async listReplies(messageId: string, touristId?: string, limit = 10): Promise<any[]> {
@@ -138,24 +137,21 @@ class CommunityService {
     }
 
     public async likeReply(replyId: string, touristId: string) {
-        const reply = await Reply.findById(replyId);
-        if (!reply) {
-            throw new Error('Reply not found');
-        }
-
         const touristOid = new Types.ObjectId(touristId);
-        const likesArray = reply.likes as Types.ObjectId[];
-        const alreadyLiked = likesArray.some((id) => id.equals(touristOid));
+
+        const reply = await Reply.findById(replyId).select('likes').lean();
+        if (!reply) throw new Error('Reply not found');
+
+        const alreadyLiked = (reply.likes as Types.ObjectId[]).some((id) => id.equals(touristOid));
 
         if (alreadyLiked) {
-            reply.likes = likesArray.filter((id) => !id.equals(touristOid));
+            await Reply.findByIdAndUpdate(replyId, { $pull: { likes: touristOid } });
         } else {
-            likesArray.push(touristOid);
-            reply.likes = likesArray;
+            await Reply.findByIdAndUpdate(replyId, { $addToSet: { likes: touristOid } });
         }
 
-        await reply.save();
-        return { liked: !alreadyLiked, likeCount: reply.likes.length };
+        const updated = await Reply.findById(replyId).select('likes').lean();
+        return { liked: !alreadyLiked, likeCount: (updated?.likes as any[])?.length || 0 };
     }
 }
 

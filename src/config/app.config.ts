@@ -1,6 +1,7 @@
 //app.config.ts
 import express from 'express';
 import cors from 'cors';
+import helmet from 'helmet';
 import authRoutes from '../routes/auth.routes';
 import cookieParser from 'cookie-parser';
 import appRoutes from '../routes/app.routes';
@@ -14,16 +15,21 @@ import swaggerUi from 'swagger-ui-express';
 import { swaggerSpec } from './swagger';
 import { auditLog } from '../middleware/audit.mw';
 import { errorHandler, notFoundHandler } from '../middleware/errorHandler.mw';
+import { authLimiter } from '../middleware/rateLimit.mw';
 
 const app = express();
 
+app.use(helmet());
 app.use(express.json());
 app.use(cookieParser());
-app.use(cors());
+app.use(cors({
+    origin: process.env.FRONTEND_URL || '*',
+    credentials: true,
+}));
 app.use(auditLog);
 
 // Mount routes
-app.use('/api/auth', authRoutes);
+app.use('/api/auth', authLimiter, authRoutes);
 app.use('/api/app', appRoutes);
 app.use('/api/public', publicRoutes);
 app.use('/api/payments', paymentsRoutes);
