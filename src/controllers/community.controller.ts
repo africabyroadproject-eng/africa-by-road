@@ -2,6 +2,18 @@ import { Request, Response } from 'express';
 import { communityService } from '../services/community.service';
 
 export class CommunityController {
+    public async getMessage(req: Request<{ id: string }>, res: Response): Promise<void> {
+        try {
+            const { id } = req.params;
+            const message = await communityService.getMessage(id, req.user?.id);
+            res.status(200).json({ message: 'Message detail', data: message });
+        } catch (error: unknown) {
+            const errMsg = error instanceof Error ? error.message : 'Failed to fetch message';
+            const status = errMsg === 'Message not found' ? 404 : 500;
+            res.status(status).json({ message: errMsg });
+        }
+    }
+
     public async listMessages(req: Request, res: Response): Promise<void> {
         try {
             const messages = await communityService.listMessages(req.user?.id, 20);

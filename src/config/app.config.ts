@@ -1,6 +1,7 @@
 //app.config.ts
 import express from 'express';
 import dotenv from 'dotenv';
+import cors from 'cors';
 import { connectDB } from './db.config';
 import authRoutes from '../routes/auth.routes';
 import cookieParser from 'cookie-parser';
@@ -10,6 +11,7 @@ import paymentsRoutes from '../routes/payments.routes';
 import profileRoutes from '../routes/profile.routes';
 import communityRoutes from '../routes/community.routes';
 import giveawaysRoutes from '../routes/giveaway.routes';
+import voteRoutes from '../routes/vote.routes';
 import swaggerUi from 'swagger-ui-express';
 import { swaggerSpec } from './swagger';
 import { auditLog } from '../middleware/audit.mw';
@@ -32,6 +34,7 @@ connectDB()
 
 app.use(express.json());
 app.use(cookieParser());
+app.use(cors());
 app.use(auditLog);
 
 // Mount routes
@@ -42,6 +45,7 @@ app.use('/api/payments', paymentsRoutes);
 app.use('/api/profile', profileRoutes);
 app.use('/api/community', communityRoutes);
 app.use('/api/giveaway', giveawaysRoutes);
+app.use('/api/vote', voteRoutes);
 
 // Swagger docs
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));

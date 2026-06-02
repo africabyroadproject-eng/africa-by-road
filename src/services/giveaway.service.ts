@@ -153,6 +153,18 @@ class GiveawayService {
         return { count: winners.length, winners };
     }
 
+    public async getSpinDetail(spinId: string): Promise<any> {
+        const spin = await GiveawaySpin.findById(spinId)
+            .populate('tourist', 'firstName lastName')
+            .lean();
+
+        if (!spin) {
+            throw new Error('Spin not found');
+        }
+
+        return spin;
+    }
+
     public async getWinnersByGameType(gameType: 'spin' | 'trivia') {
         const today = startOfDay(new Date());
         const wins = await GiveawaySpin.find({

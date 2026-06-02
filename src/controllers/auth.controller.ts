@@ -7,7 +7,8 @@ import {
     EmailVerificationDto, 
     ResendVerificationDto,
     ForgotPasswordDto,
-    ResetPasswordDto 
+    ResetPasswordDto,
+    ChangePasswordDto
 } from '../interfaces/auth.interface';
 import TouristService from '../services/tourist.service';
 import { EmailOtpVerifyDto, GoogleVerifyDto } from '../interfaces/auth.interface';
@@ -252,6 +253,34 @@ export class AuthController {
     /**
      * Verify Google Sign-In id_token and mark email verified
      */
+    public async changePassword(req: Request<{}, {}, ChangePasswordDto>, res: Response): Promise<void> {
+        try {
+            if (!req.user?.id) {
+                res.status(401).json({ message: 'Authentication required' });
+                return;
+            }
+
+            const { currentPassword, newPassword } = req.body;
+
+            if (!currentPassword || !newPassword) {
+                res.status(400).json({ message: 'Current password and new password are required' });
+                return;
+            }
+
+            const result = await TouristService.changePassword(req.user.id, currentPassword, newPassword);
+
+            if (result.error) {
+                res.status(result.code || 400).json({ message: result.message });
+                return;
+            }
+
+            res.status(200).json({ message: result.message });
+        } catch (error: unknown) {
+            const errorMessage = error instanceof Error ? error.message : 'Failed to change password';
+            res.status(500).json({ message: 'Failed to change password', error: errorMessage });
+        }
+    }
+
     public async googleVerify(req: Request<{}, {}, GoogleVerifyDto>, res: Response): Promise<void> {
         try {
             console.log('Google verification request received');

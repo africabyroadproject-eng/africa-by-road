@@ -55,6 +55,18 @@ export class GiveawayController {
         }
     }
 
+    public async getSpinDetail(req: Request<{ id: string }>, res: Response): Promise<void> {
+        try {
+            const { id } = req.params;
+            const spin = await giveawayService.getSpinDetail(id);
+            res.status(200).json({ message: 'Spin detail', data: spin });
+        } catch (error: unknown) {
+            const errMsg = error instanceof Error ? error.message : 'Failed to fetch spin';
+            const status = errMsg === 'Spin not found' ? 404 : 500;
+            res.status(status).json({ message: errMsg });
+        }
+    }
+
     public async getTodaysWinners(req: Request, res: Response): Promise<void> {
         try {
             const winners = await giveawayService.getTodaysWinners();

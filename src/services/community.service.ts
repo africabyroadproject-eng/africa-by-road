@@ -3,6 +3,30 @@ import { Reply } from '../models/reply.model';
 import { Types } from 'mongoose';
 
 class CommunityService {
+    public async getMessage(messageId: string, touristId?: string): Promise<any> {
+        const message = await Message.findById(messageId)
+            .populate('author', 'firstName lastName')
+            .populate('likes', 'firstName lastName')
+            .lean();
+
+        if (!message) {
+            throw new Error('Message not found');
+        }
+
+        const likesArray = message.likes as any[] || [];
+        const touristOid = touristId ? new Types.ObjectId(touristId) : null;
+        const replyCount = await Reply.countDocuments({ messageId: message._id });
+
+        return {
+            ...message,
+            likeCount: likesArray.length,
+            replyCount,
+            likedByCurrentUser: touristOid
+                ? likesArray.some((id) => touristOid.equals(id))
+                : false,
+        };
+    }
+
     public async listMessages(touristId?: string, limit = 20): Promise<any[]> {
         const messages = await Message.find({})
             .sort({ createdAt: -1 })

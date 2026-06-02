@@ -74,5 +74,6 @@ router.post('/spin', verifyToken, requireCompleteRegistration, requirePayment, g
 router.get('/trivia/question', verifyToken, requireCompleteRegistration, requirePayment, giveawayController.getTriviaQuestion);
 router.post('/trivia/submit', verifyToken, requireCompleteRegistration, requirePayment, giveawayController.submitTrivia);
 router.get('/winners', giveawayController.getTodaysWinners);
+router.get('/spins/:id', verifyToken, requireCompleteRegistration, requirePayment, giveawayController.getSpinDetail);
 
 export default router;

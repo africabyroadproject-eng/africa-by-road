@@ -90,3 +90,8 @@ export interface DocumentDto {
     name: string;
     url: string;
 }
+
+export interface ChangePasswordDto {
+    currentPassword: string;
+    newPassword: string;
+}

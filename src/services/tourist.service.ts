@@ -539,6 +539,38 @@ class TouristService {
     }
 
     /**
+     * Change password for authenticated user
+     */
+    public async changePassword(touristId: string, currentPassword: string, newPassword: string): Promise<IResult> {
+        try {
+            const tourist = await Tourist.findById(touristId);
+            if (!tourist) {
+                return { error: true, message: 'User not found', code: 404, data: null };
+            }
+
+            const isValidPassword = await compare(currentPassword, tourist.password);
+            if (!isValidPassword) {
+                return { error: true, message: 'Current password is incorrect', code: 401, data: null };
+            }
+
+            const passwordValidation = this.validatePassword(newPassword);
+            if (!passwordValidation.isValid) {
+                return { error: true, message: passwordValidation.message, code: 400, data: null };
+            }
+
+            const salt = await genSalt(10);
+            const hashedPassword = await hash(newPassword, salt);
+            tourist.password = hashedPassword;
+            await tourist.save();
+
+            return { error: false, message: 'Password changed successfully', data: null };
+        } catch (error: unknown) {
+            const errorMessage = error instanceof Error ? error.message : 'Failed to change password';
+            return { error: true, message: 'Failed to change password', data: errorMessage };
+        }
+    }
+
+    /**
      * Generate JWT token
      */
     private generateToken(tourist: ITourist): string {

@@ -120,6 +120,7 @@ const communityController = new CommunityController();
 router.get('/messages', verifyToken, requireCompleteRegistration, requirePayment, communityController.listMessages);
 router.get('/messages/search', verifyToken, requireCompleteRegistration, requirePayment, communityController.searchMessages);
 router.post('/messages', verifyToken, requireCompleteRegistration, requirePayment, communityController.postMessage);
+router.get('/messages/:id', verifyToken, requireCompleteRegistration, requirePayment, communityController.getMessage);
 router.post('/messages/:id/like', verifyToken, requireCompleteRegistration, requirePayment, communityController.likeMessage);
 router.get('/messages/:id/replies', verifyToken, requireCompleteRegistration, requirePayment, communityController.listReplies);
 router.post('/messages/:id/replies', verifyToken, requireCompleteRegistration, requirePayment, communityController.postReply);
