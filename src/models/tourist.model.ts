@@ -64,7 +64,8 @@ const touristSchema = new Schema<ITourist>(
         },
         password: {
             type: String,
-            required: true
+            required: true,
+            select: false
         },
         firstName: {
             type: String,

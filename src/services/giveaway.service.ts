@@ -112,12 +112,14 @@ class GiveawayService {
 
         const prize = isCorrect ? TRIVIA_PRIZES[Math.floor(Math.random() * TRIVIA_PRIZES.length)] : 'No Win';
 
-        await TriviaResponse.create({
-            tourist: new Types.ObjectId(touristId),
-            questionId: new Types.ObjectId(questionId),
-            selectedAnswer,
-            isCorrect
-        });
+        if (questionId !== 'default') {
+            await TriviaResponse.create({
+                tourist: new Types.ObjectId(touristId),
+                questionId: new Types.ObjectId(questionId),
+                selectedAnswer,
+                isCorrect
+            });
+        }
 
         if (isCorrect) {
             await GiveawaySpin.create({

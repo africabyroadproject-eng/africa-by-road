@@ -39,7 +39,7 @@ class AdminService {
     }
 
     public async login(data: LoginCredentials): Promise<{ id: string; email: string; role: string; firstName: string }> {
-        const admin = await Admin.findOne({ email: data.email.toLowerCase() });
+        const admin = await Admin.findOne({ email: data.email.toLowerCase() }).select('+password');
 
         if (!admin) {
             throw new Error('Invalid credentials');

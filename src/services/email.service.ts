@@ -254,7 +254,7 @@ class EmailService {
     public async sendOtpEmail(email: string, firstName: string, otpCode: string): Promise<boolean> {
         try {
             if (!this.apiKey) {
-                console.log('OTP email would be sent to:', email, 'code:', otpCode);
+                console.log('OTP email would be sent to:', email);
                 return true;
             }
 
@@ -266,7 +266,7 @@ class EmailService {
             };
 
             await this.sendEmail(emailOptions);
-            console.log('OTP email sent successfully to:', email, 'code:', otpCode);
+            console.log('OTP email sent successfully to:', email);
             return true;
         } catch (error) {
             console.error('Error sending OTP email:', error);

@@ -69,7 +69,7 @@ class PaystackService {
             },
             body: JSON.stringify({
                 email,
-                amount: currency === 'USD' ? amount * 100 : amount,
+                amount: amount * 100,
                 currency,
                 reference,
                 callback_url: process.env.PAYMENT_CALLBACK_URL || 'http://localhost:3000/api/payments/callback',
@@ -91,7 +91,7 @@ class PaystackService {
     }
 
     public generateIdempotencyKey(email: string, reference: string): string {
-        return `IDEM_${email}_${reference}_${Date.now()}`;
+        return `IDEM_${email}_${reference}`;
     }
 
     public clearIdempotencyKey(key: string): void {

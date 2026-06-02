@@ -164,7 +164,7 @@ class TouristService {
         }
 
         try {
-            const tourist = await Tourist.findOne({ email: data.email });
+            const tourist = await Tourist.findOne({ email: data.email }).select('+password');
             
             // Verify password
             if (!tourist) {
@@ -176,7 +176,7 @@ class TouristService {
                 };
             }
 
-            const isValidPassword = await compare(data.password, tourist.password);
+            const isValidPassword = await compare(data.password.trim(), tourist.password);
             if (!isValidPassword) {
                 return {
                     error: true,
@@ -543,7 +543,7 @@ class TouristService {
      */
     public async changePassword(touristId: string, currentPassword: string, newPassword: string): Promise<IResult> {
         try {
-            const tourist = await Tourist.findById(touristId);
+            const tourist = await Tourist.findById(touristId).select('+password');
             if (!tourist) {
                 return { error: true, message: 'User not found', code: 404, data: null };
             }
@@ -583,7 +583,7 @@ class TouristService {
             },
             jwtConfig.secret,
             {
-                expiresIn: process.env.JWT_EXPIRES_IN ? parseInt(process.env.JWT_EXPIRES_IN) : '24h',
+                expiresIn: process.env.JWT_EXPIRES_IN || ('24h' as any),
                 algorithm: 'HS256'
             }
         );

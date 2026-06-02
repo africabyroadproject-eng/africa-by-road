@@ -24,7 +24,8 @@ const adminSchema = new Schema<IAdmin>(
         },
         password: {
             type: String,
-            required: true
+            required: true,
+            select: false
         },
         firstName: {
             type: String,
