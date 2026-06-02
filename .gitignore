@@ -1,5 +1,13 @@
 .env
+.env.local
+.env.production
+.env.*.local
 sendgrid.env
 node_modules/
 dist/
 *.log
+*.tsbuildinfo
+.DS_Store
+.vscode/
+coverage/
+tmp/

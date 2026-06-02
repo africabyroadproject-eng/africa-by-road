@@ -1,8 +1,13 @@
 //auth.config.ts
 import { Secret } from 'jsonwebtoken';
 
+const jwtSecret = process.env.JWT_SECRET;
+if (!jwtSecret) {
+    throw new Error('JWT_SECRET environment variable is required');
+}
+
 export const jwtConfig = {
-    secret: process.env.JWT_SECRET as Secret || 'your-secret-key',
+    secret: jwtSecret as Secret,
     expiresIn: '24h',
     refreshExpiresIn: '7d',
     issuer: 'africa-by-road',

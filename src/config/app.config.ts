@@ -1,8 +1,6 @@
 //app.config.ts
 import express from 'express';
-import dotenv from 'dotenv';
 import cors from 'cors';
-import { connectDB } from './db.config';
 import authRoutes from '../routes/auth.routes';
 import cookieParser from 'cookie-parser';
 import appRoutes from '../routes/app.routes';
@@ -17,20 +15,7 @@ import { swaggerSpec } from './swagger';
 import { auditLog } from '../middleware/audit.mw';
 import { errorHandler, notFoundHandler } from '../middleware/errorHandler.mw';
 
-
-dotenv.config();
-
 const app = express();
-
-// Connect to DB
-connectDB()
-    .then(() => {
-        console.log('Database connection initialized');
-    })
-    .catch((error) => {
-        console.error('Failed to connect to database:', error);
-        process.exit(1);
-    });
 
 app.use(express.json());
 app.use(cookieParser());
@@ -64,11 +49,5 @@ app.use(express.static('public'));
 // Error handling
 app.use(notFoundHandler);
 app.use(errorHandler);
-
-const mongoURI = process.env.MONGODB_URI;
-
-if (!mongoURI) {
-  throw new Error('MongoDB URI is not defined in environment variables');
-}
 
 export default app;
