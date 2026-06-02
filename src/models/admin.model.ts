@@ -56,5 +56,7 @@ const adminSchema = new Schema<IAdmin>(
 );
 
 adminSchema.index({ email: 1 });
+adminSchema.index({ role: 1 });
+adminSchema.index({ isActive: 1 });
 
 export const Admin = mongoose.model<IAdmin>('Admin', adminSchema);

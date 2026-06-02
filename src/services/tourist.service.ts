@@ -1,8 +1,7 @@
 //tourist.service.ts
-import { Request } from 'express';
 import { Tourist, ITourist } from '../models/tourist.model';
 import { jwtConfig } from '../config/auth.config';
-import { LoginCredentials, RegisterTouristDto, AuthResponse } from '../interfaces/auth.interface';
+import { LoginCredentials, RegisterTouristDto } from '../interfaces/auth.interface';
 import { sign } from 'jsonwebtoken';
 import { hash, genSalt, compare } from 'bcrypt';
 import { emailService } from './email.service';
@@ -15,16 +14,10 @@ interface IResult {
 }
 
 class TouristService {
-    public result: IResult;
-
-    constructor() {
-        this.result = { error: false, message: '', data: null };
-    }
-
     /**
      * Validate tourist registration data
      */
-    public async validateRegister(data: RegisterTouristDto): Promise<IResult> {
+    private async validateRegister(data: RegisterTouristDto): Promise<IResult> {
         let result: IResult = { error: false, message: '', data: null };
 
         if (!data.email) {
@@ -54,7 +47,7 @@ class TouristService {
     /**
      * Validate tourist login credentials
      */
-    public async validateLogin(data: LoginCredentials): Promise<IResult> {
+    private async validateLogin(data: LoginCredentials): Promise<IResult> {
         let result: IResult = { error: false, message: '', code: 200, data: null };
 
         if (!data.email) {
@@ -119,13 +112,11 @@ class TouristService {
 
             await tourist.save();
 
-            // Send OTP email
             const emailSent = await emailService.sendOtpEmail(tourist.email, tourist.firstName, otpCode);
             if (!emailSent) {
                 console.warn('Failed to send OTP to:', tourist.email);
             }
 
-            // Generate JWT token
             const token = this.generateToken(tourist);
 
             return {
@@ -290,12 +281,10 @@ class TouristService {
                 };
             }
 
-            // Generate new OTP
-            tourist.emailOtpCode = emailService.generateOtpCode();
-            tourist.emailOtpExpires = new Date(Date.now() + 10 * 60 * 1000);
-            await tourist.save();
+            const otpCode = emailService.generateOtpCode();
+            const otpExpires = new Date(Date.now() + 10 * 60 * 1000);
 
-            const emailSent = await emailService.sendOtpEmail(tourist.email, tourist.firstName, tourist.emailOtpCode!);
+            const emailSent = await emailService.sendOtpEmail(tourist.email, tourist.firstName, otpCode);
 
             if (!emailSent) {
                 return {
@@ -305,6 +294,10 @@ class TouristService {
                     data: null
                 };
             }
+
+            tourist.emailOtpCode = otpCode;
+            tourist.emailOtpExpires = otpExpires;
+            await tourist.save();
 
             return {
                 error: false,
@@ -337,7 +330,14 @@ class TouristService {
                 };
             }
 
-            // Generate password reset token
+            if (tourist.passwordResetExpires && tourist.passwordResetExpires > new Date()) {
+                return {
+                    error: false,
+                    message: 'If an account with this email exists, a password reset link has been sent.',
+                    data: null
+                };
+            }
+
             const passwordResetToken = emailService.generateVerificationToken();
             const passwordResetExpires = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
 
@@ -573,7 +573,7 @@ class TouristService {
     /**
      * Generate JWT token
      */
-    private generateToken(tourist: ITourist): string {
+    public generateToken(tourist: ITourist): string {
         return sign(
             { 
                 id: tourist._id,
@@ -583,7 +583,7 @@ class TouristService {
             },
             jwtConfig.secret,
             {
-                expiresIn: process.env.JWT_EXPIRES_IN || ('24h' as any),
+                expiresIn: (process.env.JWT_EXPIRES_IN || jwtConfig.expiresIn) as any,
                 algorithm: 'HS256'
             }
         );

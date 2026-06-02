@@ -14,7 +14,6 @@
 import { Router } from 'express';
 import { verifyToken } from '../middleware/auth.mw';
 import { requireCompleteRegistration } from '../middleware/registration.mw';
-import { requirePayment } from '../middleware/registration.mw';
 import { AppController } from '../controllers/app.controller';
 
 const router = Router();

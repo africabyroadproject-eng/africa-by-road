@@ -97,9 +97,9 @@ class DashboardService {
                 subtitle:
                     'Join our community of road travelers exploring the beauty and diversity of Africa.',
                 heroImages: [
-                    'https://example.com/images/algeria-martyrs-memorial.jpg',
-                    'https://example.com/images/voortrekker-monument-night.jpg',
-                    'https://example.com/images/voortrekker-monument-day.jpg'
+                    'https://placehold.co/1200x600/0f3460/eaeaea?text=Road+Trip+Africa',
+                    'https://placehold.co/1200x600/1a1a2e/eaeaea?text=Adventure+Awaits',
+                    'https://placehold.co/1200x600/16213e/eaeaea?text=Explore+More'
                 ],
                 cta: { text: 'Join Community', href: '/register' }
             },

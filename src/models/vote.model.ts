@@ -19,5 +19,7 @@ const voteSchema = new Schema<IVote>(
 );
 
 voteSchema.index({ tourist: 1, contestant: 1, voteDate: 1 }, { unique: true });
+voteSchema.index({ tourist: 1, voteDate: 1 });
+voteSchema.index({ contestant: 1, voteDate: 1 });
 
 export const Vote = mongoose.model<IVote>('Vote', voteSchema);

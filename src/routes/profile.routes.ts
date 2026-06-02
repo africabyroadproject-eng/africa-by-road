@@ -49,11 +49,73 @@
  *     responses:
  *       200:
  *         description: Registration status
+ *
+ * /api/profile/social:
+ *   put:
+ *     summary: Update social media links
+ *     tags: [Profile]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               instagram:
+ *                 type: string
+ *               facebook:
+ *                 type: string
+ *               twitter:
+ *                 type: string
+ *               tiktok:
+ *                 type: string
+ *               youtube:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Social media updated
+ *
+ * /api/profile/documents:
+ *   put:
+ *     summary: Upload document URLs
+ *     tags: [Profile]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               governmentId:
+ *                 type: object
+ *                 properties:
+ *                   name:
+ *                     type: string
+ *                   url:
+ *                     type: string
+ *               proofOfAddress:
+ *                 type: object
+ *                 properties:
+ *                   name:
+ *                     type: string
+ *                   url:
+ *                     type: string
+ *               medicalRecords:
+ *                 type: object
+ *                 properties:
+ *                   name:
+ *                     type: string
+ *                   url:
+ *                     type: string
+ *     responses:
+ *       200:
+ *         description: Documents updated
  */
 
 import { Router } from 'express';
 import { verifyToken } from '../middleware/auth.mw';
-import { requireCompleteRegistration } from '../middleware/registration.mw';
 import { ProfileController } from '../controllers/profile.controller';
 
 const router = Router();

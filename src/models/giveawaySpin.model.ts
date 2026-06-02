@@ -22,5 +22,6 @@ const giveawaySpinSchema = new Schema<IGiveawaySpin>(
 
 giveawaySpinSchema.index({ tourist: 1, gameType: 1, spinDate: 1 }, { unique: true });
 giveawaySpinSchema.index({ spinDate: -1, prize: 1 });
+giveawaySpinSchema.index({ tourist: 1, spinDate: -1 });
 
 export const GiveawaySpin = mongoose.model<IGiveawaySpin>('GiveawaySpin', giveawaySpinSchema);

@@ -1,6 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
 import fs from 'fs';
-import path from 'path';
 
 const LOG_FILE = process.env.AUDIT_LOG_FILE || 'audit.log';
 

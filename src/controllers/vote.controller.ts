@@ -2,10 +2,12 @@ import { Request, Response } from 'express';
 import { voteService } from '../services/vote.service';
 
 export class VoteController {
-    public async listContestants(_req: Request, res: Response): Promise<void> {
+    public async listContestants(req: Request<{}, {}, {}, { page?: string; limit?: string }>, res: Response): Promise<void> {
         try {
-            const contestants = await voteService.listContestants();
-            res.status(200).json({ message: 'Contestants', data: contestants });
+            const page = Math.max(1, parseInt(req.query.page || '1', 10));
+            const limit = Math.min(100, Math.max(1, parseInt(req.query.limit || '20', 10)));
+            const result = await voteService.listContestants(page, limit);
+            res.status(200).json({ message: 'Contestants', ...result });
         } catch (error: unknown) {
             const errMsg = error instanceof Error ? error.message : 'Failed to fetch contestants';
             res.status(500).json({ message: 'Failed to fetch contestants', error: errMsg });

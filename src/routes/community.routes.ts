@@ -106,6 +106,22 @@
  *     responses:
  *       200:
  *         description: Search results
+ *
+ * /api/community/replies/{id}/like:
+ *   post:
+ *     summary: Like/unlike a reply
+ *     tags: [Community]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - name: id
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Like toggled
  */
 
 import { Router } from 'express';

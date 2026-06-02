@@ -1,6 +1,7 @@
 .env
 .env.local
 .env.production
+.env.staging
 .env.*.local
 sendgrid.env
 node_modules/
@@ -9,5 +10,6 @@ dist/
 *.tsbuildinfo
 .DS_Store
 .vscode/
+.idea/
 coverage/
 tmp/

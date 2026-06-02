@@ -34,8 +34,8 @@ export class ProfileController {
                     updatedAt: user.updatedAt
                 }
             });
-        } catch (error) {
-            res.status(500).json({ message: 'Failed to retrieve profile' });
+        } catch (error: unknown) {
+            res.status(500).json({ message: 'Failed to retrieve profile' }); return
         }
     }
 
@@ -63,8 +63,8 @@ export class ProfileController {
             await user.save();
 
             res.status(200).json({ message: 'Personal info updated', registrationStatus: user.registrationStatus });
-        } catch (error) {
-            res.status(500).json({ message: 'Failed to update personal info' });
+        } catch (error: unknown) {
+            res.status(500).json({ message: 'Failed to update personal info' }); return
         }
     }
 
@@ -77,18 +77,19 @@ export class ProfileController {
             }
 
             user.socialMedia = {
-                instagram: req.body.instagram,
-                facebook: req.body.facebook,
-                twitter: req.body.twitter,
-                tiktok: req.body.tiktok,
-                youtube: req.body.youtube
+                ...(user.socialMedia || {}),
+                ...(req.body.instagram !== undefined ? { instagram: req.body.instagram } : {}),
+                ...(req.body.facebook !== undefined ? { facebook: req.body.facebook } : {}),
+                ...(req.body.twitter !== undefined ? { twitter: req.body.twitter } : {}),
+                ...(req.body.tiktok !== undefined ? { tiktok: req.body.tiktok } : {}),
+                ...(req.body.youtube !== undefined ? { youtube: req.body.youtube } : {}),
             };
 
             await user.save();
 
             res.status(200).json({ message: 'Social media updated' });
-        } catch (error) {
-            res.status(500).json({ message: 'Failed to update social media' });
+        } catch (error: unknown) {
+            res.status(500).json({ message: 'Failed to update social media' }); return
         }
     }
 
@@ -118,8 +119,8 @@ export class ProfileController {
             await user.save();
 
             res.status(200).json({ message: 'Document uploaded', documentType: type });
-        } catch (error) {
-            res.status(500).json({ message: 'Failed to upload document' });
+        } catch (error: unknown) {
+            res.status(500).json({ message: 'Failed to upload document' }); return
         }
     }
 
@@ -141,8 +142,8 @@ export class ProfileController {
                 missingFields,
                 nextStep: missingFields.length > 0 ? missingFields[0] : null
             });
-        } catch (error) {
-            res.status(500).json({ message: 'Failed to get registration status' });
+        } catch (error: unknown) {
+            res.status(500).json({ message: 'Failed to get registration status' }); return
         }
     }
 

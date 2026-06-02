@@ -1,10 +1,9 @@
 //auth.controller.ts
 import { Request, Response } from 'express';
 import { cookieConfig } from '../config/auth.config';
-import { 
-    LoginCredentials, 
-    RegisterTouristDto, 
-    EmailVerificationDto, 
+import {
+    LoginCredentials,
+    RegisterTouristDto,
     ResendVerificationDto,
     ForgotPasswordDto,
     ResetPasswordDto,
@@ -13,6 +12,8 @@ import {
 import TouristService from '../services/tourist.service';
 import { EmailOtpVerifyDto, GoogleVerifyDto } from '../interfaces/auth.interface';
 import { googleAuthService } from '../services/google.service';
+import { Tourist } from '../models/tourist.model';
+import { genSalt, hash } from 'bcrypt';
 
 export class AuthController {
     public async register(req: Request<{}, {}, RegisterTouristDto>, res: Response):Promise<void> {
@@ -256,60 +257,33 @@ export class AuthController {
     public async changePassword(req: Request<{}, {}, ChangePasswordDto>, res: Response): Promise<void> {
         try {
             if (!req.user?.id) {
-                res.status(401).json({ message: 'Authentication required' });
-                return;
+                res.status(401).json({ message: 'Authentication required' }); return
             }
 
-            const { currentPassword, newPassword } = req.body;
-
-            if (!currentPassword || !newPassword) {
-                res.status(400).json({ message: 'Current password and new password are required' });
-                return;
-            }
-
-            const result = await TouristService.changePassword(req.user.id, currentPassword, newPassword);
+            const result = await TouristService.changePassword(req.user.id, req.body.currentPassword, req.body.newPassword);
 
             if (result.error) {
-                res.status(result.code || 400).json({ message: result.message });
-                return;
+                res.status(result.code || 400).json({ message: result.message }); return
             }
 
-            res.status(200).json({ message: result.message });
+            res.status(200).json({ message: result.message }); return
         } catch (error: unknown) {
             const errorMessage = error instanceof Error ? error.message : 'Failed to change password';
-            res.status(500).json({ message: 'Failed to change password', error: errorMessage });
+            res.status(500).json({ message: 'Failed to change password', error: errorMessage }); return
         }
     }
 
     public async googleVerify(req: Request<{}, {}, GoogleVerifyDto>, res: Response): Promise<void> {
         try {
-            console.log('Google verification request received');
             const { idToken } = req.body;
             if (!idToken) {
-                console.log('No idToken provided in request');
                 res.status(400).json({ message: 'idToken is required' });
                 return;
             }
-            
-            // For testing purposes - bypass token verification if in development
-            let payload;
-            if (process.env.NODE_ENV === 'development' && idToken === 'test_token') {
-                console.log('Using test token in development mode');
-                payload = {
-                    email: 'test@example.com',
-                    email_verified: true,
-                    given_name: 'Test',
-                    family_name: 'User'
-                };
-            } else {
-                console.log('Calling googleAuthService.verifyIdToken...');
-                payload = await googleAuthService.verifyIdToken(idToken);
-            }
-            
-            console.log('Verification result:', payload ? 'Success' : 'Failed');
-            
+
+            const payload = await googleAuthService.verifyIdToken(idToken);
+
             if (!payload || !payload.email) {
-                console.log('Token verification failed or missing email in payload');
                 res.status(400).json({ message: 'Unable to verify Google token' });
                 return;
             }
@@ -320,8 +294,7 @@ export class AuthController {
                 return;
             }
 
-            // Upsert Tourist and mark email verified
-            const existing = await (await import('../models/tourist.model')).Tourist.findOne({ email });
+            const existing = await Tourist.findOne({ email });
             let tourist: any;
 
             if (existing) {
@@ -334,13 +307,11 @@ export class AuthController {
                 await existing.save();
                 tourist = existing;
             } else {
-                // Create with random password; user can set later during onboarding
-                const salt = await (await import('bcrypt')).genSalt(10);
+                const salt = await genSalt(10);
                 const randomPass = cryptoRandomPassword();
-                const hashedPassword = await (await import('bcrypt')).hash(randomPass, salt);
+                const hashedPassword = await hash(randomPass, salt);
 
-                const TouristModel = (await import('../models/tourist.model')).Tourist;
-                tourist = await TouristModel.create({
+                tourist = await Tourist.create({
                     email,
                     password: hashedPassword,
                     firstName: given_name || 'Google',
@@ -351,7 +322,7 @@ export class AuthController {
                 });
             }
 
-            const token = (TouristService as any).generateToken ? (TouristService as any).generateToken(tourist) : undefined;
+            const token = TouristService.generateToken(tourist);
 
             res.status(200).json({
                 message: 'Google verification successful',

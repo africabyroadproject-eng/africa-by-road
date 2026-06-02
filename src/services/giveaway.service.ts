@@ -165,24 +165,6 @@ class GiveawayService {
 
         return spin;
     }
-
-    public async getWinnersByGameType(gameType: 'spin' | 'trivia') {
-        const today = startOfDay(new Date());
-        const wins = await GiveawaySpin.find({
-            gameType,
-            spinDate: { $gte: today },
-            prize: { $ne: 'No Win' }
-        })
-            .sort({ spinDate: -1 })
-            .populate('tourist', 'firstName lastName')
-            .lean();
-
-        return wins.map((win: any, idx) => ({
-            rank: idx + 1,
-            name: `${win.tourist?.firstName} ${win.tourist?.lastName}`.trim(),
-            prize: win.prize
-        }));
-    }
 }
 
 export const giveawayService = new GiveawayService();

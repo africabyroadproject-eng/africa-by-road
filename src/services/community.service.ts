@@ -27,8 +27,46 @@ class CommunityService {
         };
     }
 
-    public async listMessages(touristId?: string, limit = 20): Promise<any[]> {
-        const messages = await Message.find({})
+    public async listMessages(touristId?: string, page = 1, limit = 20): Promise<{ total: number; page: number; limit: number; totalPages: number; data: any[] }> {
+        const skip = (page - 1) * limit;
+        const [total, messages] = await Promise.all([
+            Message.countDocuments({}),
+            Message.find({})
+                .sort({ createdAt: -1 })
+                .skip(skip)
+                .limit(limit)
+                .populate('author', 'firstName lastName')
+                .lean()
+        ]);
+
+        const touristOid = touristId ? new Types.ObjectId(touristId) : null;
+        const messageIds = messages.map((m) => m._id);
+
+        const replyCounts = await Reply.aggregate([
+            { $match: { messageId: { $in: messageIds } } },
+            { $group: { _id: '$messageId', count: { $sum: 1 } } }
+        ]);
+        const replyCountMap = new Map(replyCounts.map((r) => [String(r._id), r.count]));
+
+        const data = messages.map((msg) => {
+            const likesArray = msg.likes as any[] || [];
+            return {
+                ...msg,
+                likeCount: likesArray.length,
+                replyCount: replyCountMap.get(String(msg._id)) || 0,
+                likedByCurrentUser: touristOid
+                    ? likesArray.some((id) => touristOid.equals(id))
+                    : false,
+            };
+        });
+
+        return { total, page, limit, totalPages: Math.ceil(total / limit) || 1, data };
+    }
+
+    public async searchMessages(query: string, touristId?: string, limit = 20): Promise<any[]> {
+        const messages = await Message.find({
+            content: { $regex: query, $options: 'i' }
+        })
             .sort({ createdAt: -1 })
             .limit(limit)
             .populate('author', 'firstName lastName')
@@ -54,21 +92,6 @@ class CommunityService {
                     : false,
             };
         });
-    }
-
-    public async searchMessages(query: string, limit = 20): Promise<any[]> {
-        const messages = await Message.find({
-            content: { $regex: query, $options: 'i' }
-        })
-            .sort({ createdAt: -1 })
-            .limit(limit)
-            .populate('author', 'firstName lastName')
-            .lean();
-
-        return messages.map((msg) => ({
-            ...msg,
-            likeCount: msg.likes?.length || 0,
-        }));
     }
 
     public async postMessage(authorId: string, content: string, attachments?: Array<{ type: 'image' | 'video'; url: string; caption?: string }>) {
@@ -99,17 +122,22 @@ class CommunityService {
         return { liked: !alreadyLiked, likeCount: (updated?.likes as any[])?.length || 0 };
     }
 
-    public async listReplies(messageId: string, touristId?: string, limit = 10): Promise<any[]> {
-        const replies = await Reply.find({ messageId })
-            .sort({ createdAt: 1 })
-            .limit(limit)
-            .populate('author', 'firstName lastName')
-            .populate('likes', 'firstName lastName')
-            .lean();
+    public async listReplies(messageId: string, touristId?: string, page = 1, limit = 10): Promise<{ total: number; page: number; limit: number; totalPages: number; data: any[] }> {
+        const skip = (page - 1) * limit;
+        const [total, replies] = await Promise.all([
+            Reply.countDocuments({ messageId }),
+            Reply.find({ messageId })
+                .sort({ createdAt: 1 })
+                .skip(skip)
+                .limit(limit)
+                .populate('author', 'firstName lastName')
+                .populate('likes', 'firstName lastName')
+                .lean()
+        ]);
 
         const touristOid = touristId ? new Types.ObjectId(touristId) : null;
 
-        return replies.map((reply) => {
+        const data = replies.map((reply) => {
             const likesArray = reply.likes as any[] || [];
             return {
                 ...reply,
@@ -119,6 +147,8 @@ class CommunityService {
                     : false,
             };
         });
+
+        return { total, page, limit, totalPages: Math.ceil(total / limit) || 1, data };
     }
 
     public async postReply(messageId: string, authorId: string, content: string) {

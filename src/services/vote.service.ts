@@ -18,22 +18,22 @@ function startOfDay(d: Date): Date {
 }
 
 class VoteService {
-    public async listContestants(): Promise<IContestant[]> {
-        const contestants = await Contestant.find({ status: 'active' })
-            .sort({ votes: -1, name: 1 })
-            .lean();
+    public async listContestants(page = 1, limit = 20): Promise<{ total: number; page: number; limit: number; totalPages: number; data: IContestant[] }> {
+        const skip = (page - 1) * limit;
+        const [total, contestants] = await Promise.all([
+            Contestant.countDocuments({ status: 'active' }),
+            Contestant.find({ status: 'active' })
+                .sort({ votes: -1, name: 1 })
+                .skip(skip)
+                .limit(limit)
+                .lean()
+        ]);
 
-        if (contestants.length > 0) return contestants;
+        if (contestants.length > 0) {
+            return { total, page, limit, totalPages: Math.ceil(total / limit) || 1, data: contestants };
+        }
 
-        // Fallback sample data for initial frontend testing when DB is empty
-        return [
-            { _id: new Types.ObjectId(), name: 'Sarah Johnson', country: 'Kenya', bio: 'Adventure seeker with a passion for wildlife photography', votes: 245, imageUrl: 'https://example.com/sarah.jpg', status: 'active' } as any,
-            { _id: new Types.ObjectId(), name: 'Michael Chen', country: 'South Africa', bio: 'Road trip enthusiast exploring Africa\'s hidden gems', votes: 189, imageUrl: 'https://example.com/michael.jpg', status: 'active' } as any,
-            { _id: new Types.ObjectId(), name: 'Amina Diallo', country: 'Senegal', bio: 'Cultural explorer documenting traditional African lifestyles', votes: 156, imageUrl: 'https://example.com/amina.jpg', status: 'active' } as any,
-            { _id: new Types.ObjectId(), name: 'David Okafor', country: 'Nigeria', bio: 'Motorcycle adventurer crossing borders and building bridges', votes: 112, imageUrl: 'https://example.com/david.jpg', status: 'active' } as any,
-            { _id: new Types.ObjectId(), name: 'Elena Mwangi', country: 'Tanzania', bio: 'Solo female traveller promoting sustainable tourism', votes: 98, imageUrl: 'https://example.com/elena.jpg', status: 'active' } as any,
-            { _id: new Types.ObjectId(), name: 'Ahmed Hassan', country: 'Egypt', bio: 'History buff tracing ancient trade routes across the continent', votes: 87, imageUrl: 'https://example.com/ahmed.jpg', status: 'active' } as any
-        ];
+        return { total: 0, page, limit, totalPages: 0, data: [] };
     }
 
     public async leaderboard(limit = 6): Promise<LeaderboardEntry[]> {
@@ -53,8 +53,8 @@ class VoteService {
 
         if (list.length > 0) return list;
 
-        const sample = await this.listContestants();
-        return sample
+        const result = await this.listContestants(1, limit);
+        return result.data
             .sort((a, b) => b.votes - a.votes)
             .slice(0, limit)
             .map((c, idx) => ({

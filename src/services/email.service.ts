@@ -14,6 +14,15 @@ class EmailService {
     private fromEmail: string;
     private baseUrl: string;
 
+    private escapeHtml(value: string): string {
+        return value
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#x27;');
+    }
+
     constructor() {
         this.apiKey = process.env.SENDGRID_API_KEY || '';
         this.fromEmail = process.env.EMAIL_FROM || 'Africabyroadproject@gmail.com';
@@ -44,7 +53,7 @@ class EmailService {
             const emailOptions: EmailOptions = {
                 to: email,
                 subject: 'Welcome to Africa by Road!',
-                html: this.getWelcomeEmailTemplate(firstName, lastName),
+                html: this.getWelcomeEmailTemplate(this.escapeHtml(firstName), this.escapeHtml(lastName)),
                 text: `Welcome to Africa by Road, ${firstName}! Your email has been verified successfully.`
             };
 
@@ -71,7 +80,7 @@ class EmailService {
             const emailOptions: EmailOptions = {
                 to: email,
                 subject: 'Reset Your Password - Africa by Road',
-                html: this.getPasswordResetEmailTemplate(firstName, resetUrl),
+                html: this.getPasswordResetEmailTemplate(this.escapeHtml(firstName), resetUrl),
                 text: `Hi ${firstName}, reset your password by clicking this link: ${resetUrl}`
             };
 
@@ -260,7 +269,7 @@ class EmailService {
             const emailOptions: EmailOptions = {
                 to: email,
                 subject: 'Your Verification Code - Africa by Road',
-                html: this.getOtpEmailTemplate(firstName, otpCode),
+                html: this.getOtpEmailTemplate(this.escapeHtml(firstName), otpCode),
                 text: `Hi ${firstName}, your verification code is: ${otpCode}. It expires in 10 minutes.`
             };
 

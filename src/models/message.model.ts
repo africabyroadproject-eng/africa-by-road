@@ -33,5 +33,6 @@ const messageSchema = new Schema<IMessage>(
 );
 
 messageSchema.index({ createdAt: -1 });
+messageSchema.index({ author: 1, createdAt: -1 });
 
 export const Message = mongoose.model<IMessage>('Message', messageSchema);

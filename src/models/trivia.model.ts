@@ -45,8 +45,12 @@ const triviaResponseSchema = new Schema<ITriviaResponse>(
     { timestamps: true }
 );
 
+triviaQuestionSchema.index({ isActive: 1 });
+triviaQuestionSchema.index({ category: 1, isActive: 1 });
+
 triviaResponseSchema.index({ tourist: 1, triviaDate: 1 }, { unique: true });
 triviaResponseSchema.index({ tourist: 1, respondedAt: 1 });
+triviaResponseSchema.index({ triviaDate: 1 });
 
 export const TriviaQuestion = mongoose.model<ITriviaQuestion>('TriviaQuestion', triviaQuestionSchema);
 export const TriviaResponse = mongoose.model<ITriviaResponse>('TriviaResponse', triviaResponseSchema);

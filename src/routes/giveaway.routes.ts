@@ -58,6 +58,24 @@
  *     responses:
  *       200:
  *         description: Today's winners
+ *
+ * /api/giveaway/spins/{id}:
+ *   get:
+ *     summary: Get spin details by ID
+ *     tags: [Giveaway]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - name: id
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Spin detail
+ *       404:
+ *         description: Spin not found
  */
 
 import { Router } from 'express';

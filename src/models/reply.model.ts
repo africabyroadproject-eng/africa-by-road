@@ -21,5 +21,6 @@ const replySchema = new Schema<IReply>(
 );
 
 replySchema.index({ messageId: 1, createdAt: -1 });
+replySchema.index({ author: 1, createdAt: -1 });
 
 export const Reply = mongoose.model<IReply>('Reply', replySchema);

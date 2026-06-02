@@ -1,5 +1,5 @@
 //tourist.model.ts
-import mongoose, { Schema, Document } from 'mongoose';
+import mongoose, { Schema, Document, Types } from 'mongoose';
 
 export interface IDocument {
     name: string;
@@ -15,14 +15,12 @@ export interface ISocialMedia {
     youtube?: string;
 }
 
-import { Types } from 'mongoose';
-
 export interface ITourist extends Document {
     email: string;
     password: string;
     firstName: string;
     middleName?: string;
-    lastName?: string;
+    lastName: string;
     phoneNumber?: string;
     nationality?: string;
     state?: string;
@@ -31,8 +29,6 @@ export interface ITourist extends Document {
     dateOfBirth?: Date;
     role: 'tourist';
     isEmailVerified: boolean;
-    emailVerificationToken?: string;
-    emailVerificationExpires?: Date;
     passwordResetToken?: string;
     passwordResetExpires?: Date;
     emailOtpCode?: string;
@@ -113,14 +109,6 @@ const touristSchema = new Schema<ITourist>(
             type: Boolean,
             default: false
         },
-        emailVerificationToken: {
-            type: String,
-            select: false
-        },
-        emailVerificationExpires: {
-            type: Date,
-            select: false
-        },
         passwordResetToken: {
             type: String,
             select: false
@@ -199,8 +187,11 @@ const touristSchema = new Schema<ITourist>(
 
 // Only add indexes for fields that don't already have unique: true
 // Email already has unique: true, so no need for explicit index
-touristSchema.index({ emailVerificationToken: 1 });
 touristSchema.index({ passwordResetToken: 1 });
 touristSchema.index({ emailOtpCode: 1, emailOtpExpires: 1 });
+touristSchema.index({ authProvider: 1 });
+touristSchema.index({ registrationStatus: 1 });
+touristSchema.index({ isPaid: 1 });
+touristSchema.index({ isEmailVerified: 1 });
 
 export const Tourist = mongoose.model<ITourist>('Tourist', touristSchema);

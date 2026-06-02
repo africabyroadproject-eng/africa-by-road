@@ -25,8 +25,8 @@ class ContentService {
                 'Agree to community guidelines'
             ],
             images: [
-                'https://example.com/images/hero.jpg',
-                'https://example.com/images/route-map.jpg'
+                'https://placehold.co/1200x600/1a1a2e/eaeaea?text=Africa+by+Road',
+                'https://placehold.co/1200x600/16213e/eaeaea?text=Route+Map'
             ],
             ctaButtons: [
                 { text: 'Join the Community', href: '/register' },

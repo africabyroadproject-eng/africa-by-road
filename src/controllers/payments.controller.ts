@@ -86,6 +86,14 @@ export class PaymentsController {
 
     public async webhook(req: Request, res: Response): Promise<void> {
         try {
+            const rawBody = (req as any).rawBody;
+            const signature = req.headers['x-mecash-signature'] as string;
+
+            if (rawBody && signature && !meCashService.verifyWebhookSignature(rawBody, signature)) {
+                res.status(401).json({ message: 'Invalid webhook signature' });
+                return;
+            }
+
             await meCashService.handleWebhook(req.body);
             res.status(200).json({ message: 'Webhook processed' });
             return;
@@ -105,8 +113,8 @@ export class PaymentsController {
                 }
             });
             return;
-        } catch (error) {
-            res.status(500).json({ message: 'Failed to get public key' });
+        } catch (error: unknown) {
+            res.status(500).json({ message: 'Failed to get public key' }); return
         }
     }
 }

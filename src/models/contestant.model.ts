@@ -28,7 +28,7 @@ const contestantSchema = new Schema<IContestant>(
     }
 );
 
-contestantSchema.index({ votes: -1 });
-contestantSchema.index({ status: 1 });
+contestantSchema.index({ status: 1, votes: -1 });
+contestantSchema.index({ country: 1 });
 
 export const Contestant = mongoose.model<IContestant>('Contestant', contestantSchema);
