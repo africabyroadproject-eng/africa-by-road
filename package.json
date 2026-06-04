@@ -23,7 +23,6 @@
     "@sendgrid/mail": "^8.1.6",
     "@types/bcrypt": "^6.0.0",
     "@types/cookie-parser": "^1.4.9",
-    "@types/cors": "^2.8.17",
     "@types/express": "^5.0.3",
     "@types/jsonwebtoken": "^9.0.10",
     "@types/mongoose": "^5.11.96",
@@ -47,6 +46,7 @@
     "typescript": "^6.0.3"
   },
   "devDependencies": {
+    "@types/cors": "^2.8.19",
     "nodemon": "^3.1.10",
     "ts-node": "^10.9.2",
     "ts-node-dev": "^2.0.0"
