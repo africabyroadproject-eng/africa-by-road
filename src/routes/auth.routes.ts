@@ -161,8 +161,6 @@
  *     responses:
  *       200:
  *         description: Password reset successful
- *
- * /api/auth/reset-password:
  *   get:
  *     summary: Validate password reset token
  *     tags: [Auth]
