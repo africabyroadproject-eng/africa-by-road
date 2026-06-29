@@ -52,7 +52,6 @@
 import { Router } from 'express';
 import { verifyToken } from '../middleware/auth.mw';
 import { requireCompleteRegistration } from '../middleware/registration.mw';
-import { requirePayment } from '../middleware/registration.mw';
 import { VoteController } from '../controllers/vote.controller';
 
 const router = Router();
@@ -62,7 +61,7 @@ const voteController = new VoteController();
 router.get('/contestants', voteController.listContestants);
 router.get('/leaderboard', voteController.leaderboard);
 
-// Protected - requires complete registration AND payment
-router.post('/favorite', verifyToken, requireCompleteRegistration, requirePayment, voteController.voteFavorite);
+// Protected - requires complete registration
+router.post('/favorite', verifyToken, requireCompleteRegistration, voteController.voteFavorite);
 
 export default router;

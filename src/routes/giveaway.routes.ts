@@ -81,17 +81,16 @@
 import { Router } from 'express';
 import { verifyToken } from '../middleware/auth.mw';
 import { requireCompleteRegistration } from '../middleware/registration.mw';
-import { requirePayment } from '../middleware/registration.mw';
 import { GiveawayController } from '../controllers/giveaway.controller';
 
 const router = Router();
 const giveawayController = new GiveawayController();
 
-router.get('/spin/status', verifyToken, requireCompleteRegistration, requirePayment, giveawayController.spinStatus);
-router.post('/spin', verifyToken, requireCompleteRegistration, requirePayment, giveawayController.spin);
-router.get('/trivia/question', verifyToken, requireCompleteRegistration, requirePayment, giveawayController.getTriviaQuestion);
-router.post('/trivia/submit', verifyToken, requireCompleteRegistration, requirePayment, giveawayController.submitTrivia);
+router.get('/spin/status', verifyToken, requireCompleteRegistration, giveawayController.spinStatus);
+router.post('/spin', verifyToken, requireCompleteRegistration, giveawayController.spin);
+router.get('/trivia/question', verifyToken, requireCompleteRegistration, giveawayController.getTriviaQuestion);
+router.post('/trivia/submit', verifyToken, requireCompleteRegistration, giveawayController.submitTrivia);
 router.get('/winners', giveawayController.getTodaysWinners);
-router.get('/spins/:id', verifyToken, requireCompleteRegistration, requirePayment, giveawayController.getSpinDetail);
+router.get('/spins/:id', verifyToken, requireCompleteRegistration, giveawayController.getSpinDetail);
 
 export default router;

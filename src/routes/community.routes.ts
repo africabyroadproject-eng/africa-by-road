@@ -127,19 +127,18 @@
 import { Router } from 'express';
 import { verifyToken } from '../middleware/auth.mw';
 import { requireCompleteRegistration } from '../middleware/registration.mw';
-import { requirePayment } from '../middleware/registration.mw';
 import { CommunityController } from '../controllers/community.controller';
 
 const router = Router();
 const communityController = new CommunityController();
 
-router.get('/messages', verifyToken, requireCompleteRegistration, requirePayment, communityController.listMessages);
-router.get('/messages/search', verifyToken, requireCompleteRegistration, requirePayment, communityController.searchMessages);
-router.post('/messages', verifyToken, requireCompleteRegistration, requirePayment, communityController.postMessage);
-router.get('/messages/:id', verifyToken, requireCompleteRegistration, requirePayment, communityController.getMessage);
-router.post('/messages/:id/like', verifyToken, requireCompleteRegistration, requirePayment, communityController.likeMessage);
-router.get('/messages/:id/replies', verifyToken, requireCompleteRegistration, requirePayment, communityController.listReplies);
-router.post('/messages/:id/replies', verifyToken, requireCompleteRegistration, requirePayment, communityController.postReply);
-router.post('/replies/:id/like', verifyToken, requireCompleteRegistration, requirePayment, communityController.likeReply);
+router.get('/messages', verifyToken, requireCompleteRegistration, communityController.listMessages);
+router.get('/messages/search', verifyToken, requireCompleteRegistration, communityController.searchMessages);
+router.post('/messages', verifyToken, requireCompleteRegistration, communityController.postMessage);
+router.get('/messages/:id', verifyToken, requireCompleteRegistration, communityController.getMessage);
+router.post('/messages/:id/like', verifyToken, requireCompleteRegistration, communityController.likeMessage);
+router.get('/messages/:id/replies', verifyToken, requireCompleteRegistration, communityController.listReplies);
+router.post('/messages/:id/replies', verifyToken, requireCompleteRegistration, communityController.postReply);
+router.post('/replies/:id/like', verifyToken, requireCompleteRegistration, communityController.likeReply);
 
 export default router;
