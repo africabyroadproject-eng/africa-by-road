@@ -1,0 +1,51 @@
+services:
+  - type: web
+    name: africa-by-road-api
+    runtime: node
+    branch: nest-security-fixes
+    plan: free
+    region: frankfurt
+    buildCommand: npm ci && npm run build
+    startCommand: npm run start:prod
+    healthCheckPath: /
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: JWT_EXPIRES_IN
+        value: 24h
+      - key: BASE_URL
+        sync: false
+      - key: FRONTEND_URL
+        sync: false
+      - key: ENABLE_SWAGGER
+        value: "false"
+      - key: SENDGRID_API_KEY
+        sync: false
+      - key: EMAIL_FROM
+        sync: false
+      - key: GOOGLE_CLIENT_ID
+        sync: false
+      - key: GOOGLE_CLIENT_SECRET
+        sync: false
+      - key: MECASH_API_KEY
+        sync: false
+      - key: MECASH_PUBLIC_KEY
+        sync: false
+      - key: MECASH_WEBHOOK_SECRET
+        sync: false
+      - key: MECASH_MODE
+        value: sandbox
+      - key: PAYSTACK_SECRET_KEY
+        sync: false
+      - key: PAYMENT_CALLBACK_URL
+        sync: false
+      - key: CLOUDINARY_CLOUD_NAME
+        sync: false
+      - key: CLOUDINARY_API_KEY
+        sync: false
+      - key: CLOUDINARY_API_SECRET
+        sync: false
