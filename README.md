@@ -14,12 +14,13 @@ API runs on `http://localhost:4000`. Application routes are under `/api`; Swagge
 
 ## Scripts
 
-- `npm run start:dev` — watch mode
+- `npm run start:dev` — watch mode (automatically boots and hosts Swagger UI at `/api-docs` and generates `swagger.json` in root)
 - `npm run build` — compile to `dist/`
 - `npm run start:prod` — run compiled build
 - `npm test` — unit tests (Jest)
 - `npm run test:e2e` — end-to-end tests (supertest + in-memory MongoDB, no real DB needed)
 - `npm run test:cov` — unit test coverage
+- `npm run swagger:generate` — generate the static `swagger.json` file in the project root using an in-memory MongoDB (no local database required)
 
 ## Deploying to Render (free tier)
 

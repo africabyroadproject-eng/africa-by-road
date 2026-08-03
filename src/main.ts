@@ -1,5 +1,7 @@
 import { Logger, RequestMethod, ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import * as fs from 'fs';
+import * as path from 'path';
 import { NestFactory } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
@@ -47,6 +49,15 @@ async function bootstrap(): Promise<void> {
       .build();
     const swaggerDocument = SwaggerModule.createDocument(app, swaggerConfig);
     SwaggerModule.setup('api-docs', app, swaggerDocument, { jsonDocumentUrl: 'api-docs.json' });
+
+    // Write static swagger JSON to project root
+    try {
+      const swaggerPath = path.join(process.cwd(), 'swagger.json');
+      fs.writeFileSync(swaggerPath, JSON.stringify(swaggerDocument, null, 2));
+      logger.log(`Swagger specification written to ${swaggerPath}`);
+    } catch (err) {
+      logger.warn(`Failed to write swagger.json: ${(err as Error).message}`);
+    }
   }
 
   await app.init();
