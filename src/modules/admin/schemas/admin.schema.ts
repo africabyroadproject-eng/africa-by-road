@@ -15,8 +15,12 @@ export class Admin {
   @Prop({ required: true, trim: true })
   lastName: string;
 
-  @Prop({ type: String, enum: ['admin', 'superadmin'], default: 'admin' })
-  role: 'admin' | 'superadmin';
+  @Prop({
+    type: String,
+    enum: ['admin', 'superadmin', 'user_manager', 'contestant_manager', 'voting_manager', 'trivia_manager', 'prize_manager'],
+    default: 'admin',
+  })
+  role: 'admin' | 'superadmin' | 'user_manager' | 'contestant_manager' | 'voting_manager' | 'trivia_manager' | 'prize_manager';
 
   @Prop({ default: true })
   isActive: boolean;

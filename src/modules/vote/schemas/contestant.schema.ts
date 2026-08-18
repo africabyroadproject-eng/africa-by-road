@@ -24,6 +24,19 @@ export class Contestant {
   @Prop({ type: String, enum: ['pending', 'active', 'eliminated', 'winner'], default: 'pending' })
   status: 'pending' | 'active' | 'eliminated' | 'winner';
 
+  @Prop({
+    type: String,
+    enum: ['Stage 1', 'Stage 2', 'Stage 3', 'Stage 4', 'Final'],
+    default: 'Stage 1',
+  })
+  currentStage: 'Stage 1' | 'Stage 2' | 'Stage 3' | 'Stage 4' | 'Final';
+
+  @Prop()
+  eliminatedAt?: Date;
+
+  @Prop({ type: Types.ObjectId, ref: 'VotingCycle' })
+  eliminatedInCycle?: Types.ObjectId;
+
   createdAt: Date;
   updatedAt: Date;
 }
@@ -34,3 +47,5 @@ export const ContestantSchema = SchemaFactory.createForClass(Contestant);
 
 ContestantSchema.index({ status: 1, votes: -1 });
 ContestantSchema.index({ country: 1 });
+ContestantSchema.index({ currentStage: 1, status: 1 });
+

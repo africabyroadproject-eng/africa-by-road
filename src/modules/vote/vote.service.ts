@@ -3,6 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { Contestant, ContestantDocument } from './schemas/contestant.schema';
 import { Vote, VoteDocument } from './schemas/vote.schema';
+import { VotingCycle, VotingCycleDocument } from './schemas/voting-cycle.schema';
 
 export interface LeaderboardEntry {
   rank: number;
@@ -28,7 +29,15 @@ export class VoteService {
   constructor(
     @InjectModel(Contestant.name) private readonly contestantModel: Model<ContestantDocument>,
     @InjectModel(Vote.name) private readonly voteModel: Model<VoteDocument>,
+    @InjectModel(VotingCycle.name) private readonly votingCycleModel: Model<VotingCycleDocument>,
   ) {}
+
+  /**
+   * Returns the currently active voting cycle, or null if none exists.
+   */
+  async getCurrentCycle() {
+    return this.votingCycleModel.findOne({ status: 'active' }).lean();
+  }
 
   async listContestants(page = 1, limit = 20) {
     const skip = (page - 1) * limit;
@@ -73,9 +82,20 @@ export class VoteService {
   }
 
   async voteFavorite(touristId: string, contestantId: string): Promise<{ message: string; votes: number }> {
+    // Enforce active voting cycle (PVOT-001)
+    const activeCycle = await this.getCurrentCycle();
+    if (!activeCycle) {
+      throw new BadRequestException('No active voting cycle. Voting is currently closed.');
+    }
+
     const contestant = await this.contestantModel.findOne({ _id: contestantId, status: 'active' });
     if (!contestant) {
       throw new BadRequestException('Contestant not found or inactive');
+    }
+
+    // Reject votes for eliminated contestants
+    if (contestant.status === 'eliminated') {
+      throw new BadRequestException('This contestant has been eliminated and cannot receive votes');
     }
 
     const today = startOfDay(new Date());
@@ -83,7 +103,12 @@ export class VoteService {
     const contestantOid = new Types.ObjectId(contestantId);
 
     try {
-      await this.voteModel.create({ tourist: touristOid, contestant: contestantOid, voteDate: today });
+      await this.voteModel.create({
+        tourist: touristOid,
+        contestant: contestantOid,
+        votingCycle: activeCycle._id,
+        voteDate: today,
+      });
     } catch (err) {
       if ((err as MongoDuplicateKeyError).code === 11000) {
         throw new BadRequestException('You have already voted for this contestant today');
@@ -95,3 +120,4 @@ export class VoteService {
     return { message: 'Vote recorded', votes: updated?.votes || contestant.votes + 1 };
   }
 }
+

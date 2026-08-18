@@ -2,7 +2,7 @@ import { CanActivate, ExecutionContext, ForbiddenException, Injectable, Unauthor
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { Request } from 'express';
-import { AdminTokenPayload } from '../interfaces/token-payload.interface';
+import { AdminRoleType, AdminTokenPayload } from '../interfaces/token-payload.interface';
 
 @Injectable()
 export class AdminAuthGuard implements CanActivate {
@@ -24,7 +24,11 @@ export class AdminAuthGuard implements CanActivate {
         secret: this.configService.getOrThrow<string>('auth.jwtSecret'),
         algorithms: ['HS256'],
       });
-      if (!['admin', 'superadmin'].includes(decoded.role)) {
+      const validRoles: AdminRoleType[] = [
+        'admin', 'superadmin', 'user_manager', 'contestant_manager',
+        'voting_manager', 'trivia_manager', 'prize_manager',
+      ];
+      if (!validRoles.includes(decoded.role)) {
         throw new Error('Invalid admin role');
       }
       req.admin = decoded;
