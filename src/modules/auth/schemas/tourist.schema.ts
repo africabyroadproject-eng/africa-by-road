@@ -119,6 +119,15 @@ export class Tourist {
   @Prop({ type: String, enum: ['pending', 'in_progress', 'complete'], default: 'pending' })
   registrationStatus: 'pending' | 'in_progress' | 'complete';
 
+  @Prop({ default: false })
+  isBlocked?: boolean;
+
+  @Prop()
+  blockedAt?: Date;
+
+  @Prop()
+  blockedReason?: string;
+
   createdAt: Date;
   updatedAt: Date;
 }
@@ -133,3 +142,5 @@ TouristSchema.index({ authProvider: 1 });
 TouristSchema.index({ registrationStatus: 1 });
 TouristSchema.index({ isPaid: 1 });
 TouristSchema.index({ isEmailVerified: 1 });
+TouristSchema.index({ isBlocked: 1 });
+

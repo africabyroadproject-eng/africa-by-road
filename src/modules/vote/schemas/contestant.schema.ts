@@ -1,6 +1,14 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument, Types } from 'mongoose';
 
+export interface StageHistoryEntry {
+  fromStage: string;
+  toStage: string;
+  movedBy: Types.ObjectId;
+  reason?: string;
+  movedAt: Date;
+}
+
 @Schema({ timestamps: true })
 export class Contestant {
   @Prop({ required: true, trim: true })
@@ -15,8 +23,8 @@ export class Contestant {
   @Prop({ required: true })
   imageUrl: string;
 
-  @Prop({ type: Types.ObjectId, ref: 'Tourist', required: true })
-  createdBy: Types.ObjectId;
+  @Prop({ type: Types.ObjectId, ref: 'Tourist', required: false })
+  createdBy?: Types.ObjectId;
 
   @Prop({ default: 0 })
   votes: number;
@@ -37,6 +45,20 @@ export class Contestant {
   @Prop({ type: Types.ObjectId, ref: 'VotingCycle' })
   eliminatedInCycle?: Types.ObjectId;
 
+  @Prop({
+    type: [
+      {
+        fromStage: { type: String, required: true },
+        toStage: { type: String, required: true },
+        movedBy: { type: Types.ObjectId, ref: 'Admin', required: true },
+        reason: { type: String },
+        movedAt: { type: Date, default: Date.now },
+      },
+    ],
+    default: [],
+  })
+  stageHistory: StageHistoryEntry[];
+
   createdAt: Date;
   updatedAt: Date;
 }
@@ -48,4 +70,5 @@ export const ContestantSchema = SchemaFactory.createForClass(Contestant);
 ContestantSchema.index({ status: 1, votes: -1 });
 ContestantSchema.index({ country: 1 });
 ContestantSchema.index({ currentStage: 1, status: 1 });
+
 

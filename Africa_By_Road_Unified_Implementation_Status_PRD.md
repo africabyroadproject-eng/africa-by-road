@@ -43,9 +43,9 @@ This document represents the **definitive full-stack implementation tracker and 
 | **F** | Public Trivia Participation | Public | 🟡 **Partial (60%)** | 🟡 **Partial (50%)** | 🔗 **Connected (No Time Windows)** | **55%** |
 | **G** | Public Spin-the-Wheel | Public | 🟢 **Built (75%)** | 🟡 **Partial (40%)** | 🔗 **Connected (Mock Prize Source)** | **55%** |
 | **H** | Auth, RBAC & Sessions | Shared | 🟡 **Partial (40%)** | 🟡 **Partial (40%)** | 🔗 **Connected Public / ❌ Missing Admin** | **40%** |
-| **I** | Admin — User Management | Admin | 🟥 **Not Built (0%)** | 🟥 **Not Built (0%)** | ❌ **0% Connected** | **0%** |
-| **J** | Admin — Contestants Management | Admin | 🟥 **Not Built (0%)** | 🟥 **Not Built (0%)** | ❌ **0% Connected** | **0%** |
-| **K** | Admin — Voting Management | Admin | 🟥 **Not Built (0%)** | 🟥 **Not Built (0%)** | ❌ **0% Connected** | **0%** |
+| **I** | Admin — User Management | Admin | 🟥 **Not Built (0%)** | 🟢 **Built (100%)** | 📄 **Integration Guide Created** | **50%** |
+| **J** | Admin — Contestants Management | Admin | 🟥 **Not Built (0%)** | 🟢 **Built (100%)** | 📄 **Integration Guide Created** | **50%** |
+| **K** | Admin — Voting Management | Admin | 🟥 **Not Built (0%)** | 🟢 **Built (100%)** | 📄 **Integration Guide Created** | **50%** |
 | **L** | Admin — Trivia Management | Admin | 🟥 **Not Built (0%)** | 🟥 **Not Built (0%)** | ❌ **0% Connected** | **0%** |
 | **M** | Admin — Spin-the-Wheel Mgmt | Admin | 🟥 **Not Built (0%)** | 🟥 **Not Built (0%)** | ❌ **0% Connected** | **0%** |
 | **N** | Audit Logging (shared infra) | Shared | 🟥 **Not Built (0%)** | 🟥 **Not Built (0%)** | ❌ **0% Connected (Console Only)** | **0%** |
@@ -235,20 +235,20 @@ This document represents the **definitive full-stack implementation tracker and 
 #### Module I — Admin: User Management
 - **PRD Spec:** User listing (`GET /api/admin/users`), detail view (`GET /api/admin/users/:id`), block/unblock actions (`PATCH /api/admin/users/:id/block`), subscription details, and summary stats cards (Total/Paid/Non-Subscribed).
 - **Frontend Status:** 🟥 **0% Built** (No `/app/admin/users` pages or components).
-- **Backend Status:** 🟥 **0% Built** (No `/api/admin/users` controller or endpoints).
-- **Connection Status:** ❌ **0% Connected**.
+- **Backend Status:** 🟢 **100% Built** (`AdminUsersController`, `AdminUsersService`, account block toggling, summary metric aggregations, role guarding).
+- **Integration Guide:** [ADMIN_USERS_FRONTEND_INTEGRATION_GUIDE.md](file:///Users/it-004/Desktop/Planner/africa-by-road-BACKEND/ADMIN_USERS_FRONTEND_INTEGRATION_GUIDE.md).
 
 #### Module J — Admin: Contestants Management
 - **PRD Spec:** Contestant list (`GET /api/admin/contestants`), stage summary cards, contestant detail view, stage history tracking (`/history`), stage move with confirmation modal (`PATCH /stage`), and status update (`PATCH /status`).
 - **Frontend Status:** 🟥 **0% Built** (No `/app/admin/contestants` pages or components).
-- **Backend Status:** 🟥 **0% Built** (No `/api/admin/contestants` controller or endpoints).
-- **Connection Status:** ❌ **0% Connected**.
+- **Backend Status:** 🟢 **100% Built** (`AdminContestantsController`, `AdminContestantsService`, stage history auditing, role guarding).
+- **Integration Guide:** [ADMIN_CONTESTANTS_FRONTEND_INTEGRATION_GUIDE.md](file:///Users/it-004/Desktop/Planner/africa-by-road-BACKEND/ADMIN_CONTESTANTS_FRONTEND_INTEGRATION_GUIDE.md).
 
 #### Module K — Admin: Voting Management
 - **PRD Spec:** Current cycle view (`GET /api/admin/voting/current`), contestant vote tallies, start new cycle (`POST /cycles`), eliminate contestant (`POST /eliminate`), and cycle voting history (`/history`).
 - **Frontend Status:** 🟥 **0% Built** (No `/app/admin/voting` pages or components).
-- **Backend Status:** 🟥 **0% Built** (No `/api/admin/voting` controller or endpoints).
-- **Connection Status:** ❌ **0% Connected**.
+- **Backend Status:** 🟢 **100% Built** (`AdminVotingController`, `AdminVotingService`, cycle logic, role guarding).
+- **Integration Guide:** [ADMIN_VOTING_FRONTEND_INTEGRATION_GUIDE.md](file:///Users/it-004/Desktop/Planner/africa-by-road-BACKEND/ADMIN_VOTING_FRONTEND_INTEGRATION_GUIDE.md).
 
 #### Module L — Admin: Trivia Management
 - **PRD Spec:** Trivia CRUD (`GET/POST/PATCH/DELETE /api/admin/trivia`), active status toggle, and `trivia_answer_change_log` logging when correct answers change after user submissions exist (TRI-005).

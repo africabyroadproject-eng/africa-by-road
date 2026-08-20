@@ -16,6 +16,7 @@ import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
 import { ResendVerificationDto } from './dto/resend-verification.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
+import { EmailService } from './services/email.service';
 import { GoogleAuthService } from './services/google-auth.service';
 
 @ApiTags('Auth')
@@ -25,6 +26,7 @@ export class AuthController {
   constructor(
     private readonly authService: AuthService,
     private readonly googleAuthService: GoogleAuthService,
+    private readonly emailService: EmailService,
     private readonly configService: ConfigService,
   ) {}
 
@@ -127,5 +129,18 @@ export class AuthController {
   @ApiOperation({ summary: 'Change password (authenticated)' })
   changePassword(@CurrentUser() user: TokenPayload, @Body() dto: ChangePasswordDto) {
     return this.authService.changePassword({ ...dto, touristId: user.id });
+  }
+
+  @Post('test-email')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Send test email to test SMTP or SendGrid provider configuration' })
+  sendTestEmailPost(@Body('email') toEmail?: string) {
+    return this.emailService.sendTestEmail(toEmail || 'owellrichard@gmail.com');
+  }
+
+  @Get('test-email')
+  @ApiOperation({ summary: 'Send test email via GET request to test SMTP or SendGrid provider configuration' })
+  sendTestEmailGet(@Query('email') toEmail?: string) {
+    return this.emailService.sendTestEmail(toEmail || 'owellrichard@gmail.com');
   }
 }

@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import sgMail from '@sendgrid/mail';
+import * as nodemailer from 'nodemailer';
 import { randomBytes, randomInt } from 'crypto';
 
 interface EmailOptions {
@@ -10,21 +11,73 @@ interface EmailOptions {
   text?: string;
 }
 
+export type EmailProvider = 'sendgrid' | 'smtp';
+
 @Injectable()
 export class EmailService {
   private readonly logger = new Logger(EmailService.name);
+  private readonly provider: EmailProvider;
   private readonly apiKey: string;
   private readonly fromEmail: string;
   private readonly frontendUrl: string;
 
+  // SMTP parameters
+  private readonly smtpHost: string;
+  private readonly smtpPort: number;
+  private readonly smtpSecure: boolean;
+  private readonly smtpUser: string;
+  private readonly smtpPass: string;
+  private readonly transporter: nodemailer.Transporter | null = null;
+
   constructor(configService: ConfigService) {
-    this.apiKey = configService.get<string>('SENDGRID_API_KEY') || '';
     this.fromEmail = configService.get<string>('EMAIL_FROM') || 'Africabyroadproject@gmail.com';
     this.frontendUrl = (configService.get<string>('FRONTEND_URL') || 'http://localhost:3000').split(',')[0].replace(/\/$/, '');
 
-    if (this.apiKey) {
-      sgMail.setApiKey(this.apiKey);
+    const requestedProvider = (configService.get<string>('EMAIL_PROVIDER') || '').toLowerCase().trim();
+    this.apiKey = configService.get<string>('SENDGRID_API_KEY') || '';
+
+    this.smtpHost = configService.get<string>('SMTP_HOST') || '';
+    this.smtpPort = parseInt(configService.get<string>('SMTP_PORT') || '587', 10);
+    const smtpSecureRaw = configService.get<string>('SMTP_SECURE');
+    this.smtpSecure = smtpSecureRaw !== undefined ? smtpSecureRaw === 'true' : this.smtpPort === 465;
+    this.smtpUser = configService.get<string>('SMTP_USER') || '';
+    this.smtpPass = configService.get<string>('SMTP_PASS') || '';
+
+    if (requestedProvider === 'smtp') {
+      this.provider = 'smtp';
+    } else if (requestedProvider === 'sendgrid') {
+      this.provider = 'sendgrid';
+    } else {
+      // Default auto-detect: if SMTP host is configured use smtp, else sendgrid
+      this.provider = this.smtpHost ? 'smtp' : 'sendgrid';
     }
+
+    if (this.provider === 'sendgrid' && this.apiKey) {
+      sgMail.setApiKey(this.apiKey);
+    } else if (this.provider === 'smtp' && this.smtpHost) {
+      this.transporter = nodemailer.createTransport({
+        host: this.smtpHost,
+        port: this.smtpPort,
+        secure: this.smtpSecure,
+        auth: this.smtpUser
+          ? {
+              user: this.smtpUser,
+              pass: this.smtpPass,
+            }
+          : undefined,
+      });
+    }
+  }
+
+  public getProvider(): EmailProvider {
+    return this.provider;
+  }
+
+  public isConfigured(): boolean {
+    if (this.provider === 'smtp') {
+      return Boolean(this.smtpHost);
+    }
+    return Boolean(this.apiKey);
   }
 
   private escapeHtml(value: string): string {
@@ -46,8 +99,8 @@ export class EmailService {
 
   public async sendWelcomeEmail(email: string, firstName: string, lastName: string): Promise<boolean> {
     try {
-      if (!this.apiKey) {
-        this.logger.log('Welcome email skipped because SendGrid is not configured');
+      if (!this.isConfigured()) {
+        this.logger.log(`Welcome email skipped because email provider (${this.provider}) is not configured`);
         return true;
       }
 
@@ -66,8 +119,8 @@ export class EmailService {
 
   public async sendPasswordResetEmail(email: string, firstName: string, resetToken: string): Promise<boolean> {
     try {
-      if (!this.apiKey) {
-        this.logger.log('Password reset email skipped because SendGrid is not configured');
+      if (!this.isConfigured()) {
+        this.logger.log(`Password reset email skipped because email provider (${this.provider}) is not configured`);
         return true;
       }
 
@@ -88,8 +141,8 @@ export class EmailService {
 
   public async sendOtpEmail(email: string, firstName: string, otpCode: string): Promise<boolean> {
     try {
-      if (!this.apiKey) {
-        this.logger.log('OTP email skipped because SendGrid is not configured');
+      if (!this.isConfigured()) {
+        this.logger.log(`OTP email skipped because email provider (${this.provider}) is not configured`);
         return true;
       }
 
@@ -99,7 +152,7 @@ export class EmailService {
         html: this.getOtpEmailTemplate(this.escapeHtml(firstName), otpCode),
         text: `Hi ${firstName}, your verification code is: ${otpCode}. It expires in 10 minutes.`,
       });
-      this.logger.log('OTP email sent successfully');
+      this.logger.log(`OTP email sent successfully via ${this.provider}`);
       return true;
     } catch (error) {
       this.logger.error('Error sending OTP email:', error as Error);
@@ -107,14 +160,83 @@ export class EmailService {
     }
   }
 
+  public async sendTestEmail(
+    toEmail = 'owellrichard@gmail.com',
+  ): Promise<{ success: boolean; provider: string; message: string }> {
+    try {
+      if (!this.isConfigured()) {
+        const msg = `Email provider '${this.provider}' is not fully configured (missing ${
+          this.provider === 'smtp' ? 'SMTP_HOST' : 'SENDGRID_API_KEY'
+        }).`;
+        this.logger.warn(`Test email failed: ${msg}`);
+        return { success: false, provider: this.provider, message: msg };
+      }
+
+      const timestamp = new Date().toISOString();
+      await this.sendEmail({
+        to: toEmail,
+        subject: 'Africa by Road - Test Email',
+        html: `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 8px;">
+            <h2 style="color: #667eea; margin-top: 0;">Africa by Road Email Delivery Test</h2>
+            <p>Hello,</p>
+            <p>This is a test email sent from <strong>Africa by Road Backend</strong> to verify your email setup.</p>
+            <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
+              <tr>
+                <td style="padding: 8px; border: 1px solid #ddd; background: #f9f9f9; font-weight: bold;">Provider</td>
+                <td style="padding: 8px; border: 1px solid #ddd;">${this.provider.toUpperCase()}</td>
+              </tr>
+              <tr>
+                <td style="padding: 8px; border: 1px solid #ddd; background: #f9f9f9; font-weight: bold;">Recipient</td>
+                <td style="padding: 8px; border: 1px solid #ddd;">${toEmail}</td>
+              </tr>
+              <tr>
+                <td style="padding: 8px; border: 1px solid #ddd; background: #f9f9f9; font-weight: bold;">Sender</td>
+                <td style="padding: 8px; border: 1px solid #ddd;">${this.fromEmail}</td>
+              </tr>
+              <tr>
+                <td style="padding: 8px; border: 1px solid #ddd; background: #f9f9f9; font-weight: bold;">Sent At</td>
+                <td style="padding: 8px; border: 1px solid #ddd;">${timestamp}</td>
+              </tr>
+            </table>
+            <p style="color: #2e7d32; font-weight: bold;">🎉 If you received this email, your email configuration is working correctly!</p>
+          </div>
+        `,
+        text: `Africa by Road Email Delivery Test\n\nProvider: ${this.provider.toUpperCase()}\nRecipient: ${toEmail}\nSender: ${this.fromEmail}\nSent At: ${timestamp}\n\nIf you received this email, your email configuration is working correctly!`,
+      });
+
+      const successMsg = `Test email sent successfully to ${toEmail} using ${this.provider.toUpperCase()}.`;
+      this.logger.log(successMsg);
+      return { success: true, provider: this.provider, message: successMsg };
+    } catch (error) {
+      const errorMsg = (error as Error).message || 'Unknown error';
+      this.logger.error(`Error sending test email to ${toEmail}:`, error as Error);
+      return {
+        success: false,
+        provider: this.provider,
+        message: `Failed to send test email via ${this.provider.toUpperCase()}: ${errorMsg}`,
+      };
+    }
+  }
+
   private async sendEmail(options: EmailOptions): Promise<void> {
-    await sgMail.send({
-      to: options.to,
-      from: this.fromEmail,
-      subject: options.subject,
-      text: options.text,
-      html: options.html,
-    });
+    if (this.provider === 'smtp' && this.transporter) {
+      await this.transporter.sendMail({
+        from: this.fromEmail,
+        to: options.to,
+        subject: options.subject,
+        text: options.text,
+        html: options.html,
+      });
+    } else {
+      await sgMail.send({
+        to: options.to,
+        from: this.fromEmail,
+        subject: options.subject,
+        text: options.text,
+        html: options.html,
+      });
+    }
   }
 
   private getWelcomeEmailTemplate(firstName: string, lastName: string): string {
