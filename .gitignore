@@ -13,3 +13,11 @@ dist/
 .idea/
 coverage/
 tmp/
+
+# Ignore documentation markdown files except README.md and memory.md
+*.md
+!README.md
+!Readme.md
+!memory.md
+!Memory.md
+
