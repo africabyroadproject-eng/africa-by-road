@@ -31,7 +31,7 @@ export class AdminAuthGuard implements CanActivate {
       if (!validRoles.includes(decoded.role)) {
         throw new Error('Invalid admin role');
       }
-      req.admin = decoded;
+      (req as any).admin = decoded;
       return true;
     } catch {
       throw new ForbiddenException('Invalid or expired admin token');

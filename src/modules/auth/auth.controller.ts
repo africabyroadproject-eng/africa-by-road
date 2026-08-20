@@ -1,6 +1,6 @@
 import { BadRequestException, Body, Controller, Get, HttpCode, HttpStatus, Post, Query, Res, UseGuards } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Throttle } from '@nestjs/throttler';
 import { Response } from 'express';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
@@ -134,12 +134,24 @@ export class AuthController {
   @Post('test-email')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Send test email to test SMTP or SendGrid provider configuration' })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        email: { type: 'string', example: 'owellrichard@gmail.com', description: 'Target email address' },
+      },
+    },
+    required: false,
+  })
+  @ApiResponse({ status: 200, description: 'Test email execution result' })
   sendTestEmailPost(@Body('email') toEmail?: string) {
     return this.emailService.sendTestEmail(toEmail || 'owellrichard@gmail.com');
   }
 
   @Get('test-email')
   @ApiOperation({ summary: 'Send test email via GET request to test SMTP or SendGrid provider configuration' })
+  @ApiQuery({ name: 'email', required: false, type: String, description: 'Target email address (defaults to owellrichard@gmail.com)' })
+  @ApiResponse({ status: 200, description: 'Test email execution result' })
   sendTestEmailGet(@Query('email') toEmail?: string) {
     return this.emailService.sendTestEmail(toEmail || 'owellrichard@gmail.com');
   }

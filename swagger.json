@@ -253,6 +253,231 @@
         ]
       }
     },
+    "/api/auth/test-email": {
+      "post": {
+        "operationId": "AuthController_sendTestEmailPost",
+        "parameters": [],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "example": "owellrichard@gmail.com",
+                    "description": "Target email address"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Test email execution result"
+          }
+        },
+        "summary": "Send test email to test SMTP or SendGrid provider configuration",
+        "tags": [
+          "Auth"
+        ]
+      },
+      "get": {
+        "operationId": "AuthController_sendTestEmailGet",
+        "parameters": [
+          {
+            "name": "email",
+            "required": false,
+            "in": "query",
+            "description": "Target email address (defaults to owellrichard@gmail.com)",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Test email execution result"
+          }
+        },
+        "summary": "Send test email via GET request to test SMTP or SendGrid provider configuration",
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
+    "/api/admin/users": {
+      "get": {
+        "operationId": "AdminUsersController_listUsers",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "isPaid",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "isEmailVerified",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "isBlocked",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "registrationStatus",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "enum": [
+                "pending",
+                "in_progress",
+                "complete"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "search",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "summary": "List all tourist users with filters, search, pagination, and summary card stats",
+        "tags": [
+          "Admin — User Management"
+        ]
+      }
+    },
+    "/api/admin/users/stats": {
+      "get": {
+        "operationId": "AdminUsersController_getUserStats",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "summary": "Get overview summary statistics for user metrics",
+        "tags": [
+          "Admin — User Management"
+        ]
+      }
+    },
+    "/api/admin/users/{id}": {
+      "get": {
+        "operationId": "AdminUsersController_getUserDetail",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "summary": "Get full user profile details by ID",
+        "tags": [
+          "Admin — User Management"
+        ]
+      }
+    },
+    "/api/admin/users/{id}/block": {
+      "patch": {
+        "operationId": "AdminUsersController_toggleBlockUser",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BlockUserDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "summary": "Block or unblock a user account with reason logging",
+        "tags": [
+          "Admin — User Management"
+        ]
+      }
+    },
     "/api/profile": {
       "get": {
         "operationId": "ProfileController_getProfile",
@@ -424,7 +649,7 @@
         "parameters": [
           {
             "name": "country",
-            "required": false,
+            "required": true,
             "in": "query",
             "schema": {
               "type": "string"
@@ -547,7 +772,7 @@
         "parameters": [
           {
             "name": "page",
-            "required": false,
+            "required": true,
             "in": "query",
             "schema": {
               "type": "string"
@@ -555,7 +780,7 @@
           },
           {
             "name": "limit",
-            "required": false,
+            "required": true,
             "in": "query",
             "schema": {
               "type": "string"
@@ -612,7 +837,7 @@
         "parameters": [
           {
             "name": "q",
-            "required": false,
+            "required": true,
             "in": "query",
             "schema": {
               "type": "string"
@@ -707,7 +932,7 @@
           },
           {
             "name": "page",
-            "required": false,
+            "required": true,
             "in": "query",
             "schema": {
               "type": "string"
@@ -715,7 +940,7 @@
           },
           {
             "name": "limit",
-            "required": false,
+            "required": true,
             "in": "query",
             "schema": {
               "type": "string"
@@ -944,7 +1169,7 @@
         "parameters": [
           {
             "name": "page",
-            "required": false,
+            "required": true,
             "in": "query",
             "schema": {
               "type": "string"
@@ -952,7 +1177,7 @@
           },
           {
             "name": "limit",
-            "required": false,
+            "required": true,
             "in": "query",
             "schema": {
               "type": "string"
@@ -1014,6 +1239,491 @@
           "Vote"
         ]
       }
+    },
+    "/api/admin/voting/current": {
+      "get": {
+        "operationId": "AdminVotingController_getCurrentCycle",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "summary": "Get current active voting cycle with contestant tallies",
+        "tags": [
+          "Admin — Voting Management"
+        ]
+      }
+    },
+    "/api/admin/voting/cycles": {
+      "get": {
+        "operationId": "AdminVotingController_listCycles",
+        "parameters": [
+          {
+            "name": "page",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "summary": "List all voting cycles (paginated)",
+        "tags": [
+          "Admin — Voting Management"
+        ]
+      },
+      "post": {
+        "operationId": "AdminVotingController_startNewCycle",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StartCycleDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "summary": "Start a new voting cycle (auto-closes any active cycle)",
+        "tags": [
+          "Admin — Voting Management"
+        ]
+      }
+    },
+    "/api/admin/voting/cycles/{id}": {
+      "get": {
+        "operationId": "AdminVotingController_getCycleDetail",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "summary": "Get specific voting cycle details with vote stats",
+        "tags": [
+          "Admin — Voting Management"
+        ]
+      }
+    },
+    "/api/admin/voting/cycles/{id}/close": {
+      "patch": {
+        "operationId": "AdminVotingController_closeCycle",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "summary": "Manually close a voting cycle",
+        "tags": [
+          "Admin — Voting Management"
+        ]
+      }
+    },
+    "/api/admin/voting/eliminate": {
+      "post": {
+        "operationId": "AdminVotingController_eliminateContestant",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EliminateContestantDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "summary": "Eliminate a contestant from the current voting cycle",
+        "tags": [
+          "Admin — Voting Management"
+        ]
+      }
+    },
+    "/api/admin/voting/contestants/{id}/history": {
+      "get": {
+        "operationId": "AdminVotingController_getContestantVoteHistory",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "summary": "Vote history for a specific contestant across all cycles",
+        "tags": [
+          "Admin — Voting Management"
+        ]
+      }
+    },
+    "/api/admin/contestants": {
+      "get": {
+        "operationId": "AdminContestantsController_listContestants",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "stage",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "enum": [
+                "Stage 1",
+                "Stage 2",
+                "Stage 3",
+                "Stage 4",
+                "Final"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "enum": [
+                "pending",
+                "active",
+                "eliminated",
+                "winner"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "country",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "search",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "summary": "List all contestants with filters, text search, pagination, and stage summary stats",
+        "tags": [
+          "Admin — Contestants Management"
+        ]
+      },
+      "post": {
+        "operationId": "AdminContestantsController_createContestant",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateContestantDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "summary": "Create a new contestant directly from admin dashboard",
+        "tags": [
+          "Admin — Contestants Management"
+        ]
+      }
+    },
+    "/api/admin/contestants/{id}": {
+      "get": {
+        "operationId": "AdminContestantsController_getContestantDetail",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "summary": "Get contestant full details by ID",
+        "tags": [
+          "Admin — Contestants Management"
+        ]
+      },
+      "patch": {
+        "operationId": "AdminContestantsController_updateContestant",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateContestantDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "summary": "Update basic contestant details (name, country, bio, image)",
+        "tags": [
+          "Admin — Contestants Management"
+        ]
+      }
+    },
+    "/api/admin/contestants/{id}/stage": {
+      "patch": {
+        "operationId": "AdminContestantsController_moveContestantStage",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MoveContestantStageDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "summary": "Move a contestant to a new stage (Stage 1 to Final) with stage history logging",
+        "tags": [
+          "Admin — Contestants Management"
+        ]
+      }
+    },
+    "/api/admin/contestants/{id}/status": {
+      "patch": {
+        "operationId": "AdminContestantsController_updateContestantStatus",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateContestantStatusDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "summary": "Update contestant status (pending, active, eliminated, winner)",
+        "tags": [
+          "Admin — Contestants Management"
+        ]
+      }
+    },
+    "/api/admin/contestants/{id}/history": {
+      "get": {
+        "operationId": "AdminContestantsController_getContestantStageHistory",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "summary": "Get stage movement history log for a contestant",
+        "tags": [
+          "Admin — Contestants Management"
+        ]
+      }
     }
   },
   "info": {
@@ -1042,29 +1752,22 @@
         "type": "object",
         "properties": {
           "email": {
-            "type": "string",
-            "maxLength": 254,
-            "format": "email"
+            "type": "string"
           },
           "password": {
-            "type": "string",
-            "maxLength": 128
+            "type": "string"
           },
           "firstName": {
-            "type": "string",
-            "maxLength": 100
+            "type": "string"
           },
           "lastName": {
-            "type": "string",
-            "maxLength": 100
+            "type": "string"
           },
           "phoneNumber": {
-            "type": "string",
-            "maxLength": 30
+            "type": "string"
           },
           "nationality": {
-            "type": "string",
-            "maxLength": 100
+            "type": "string"
           }
         },
         "required": [
@@ -1078,13 +1781,10 @@
         "type": "object",
         "properties": {
           "email": {
-            "type": "string",
-            "maxLength": 254,
-            "format": "email"
+            "type": "string"
           },
           "password": {
-            "type": "string",
-            "maxLength": 128
+            "type": "string"
           }
         },
         "required": [
@@ -1096,15 +1796,10 @@
         "type": "object",
         "properties": {
           "email": {
-            "type": "string",
-            "maxLength": 254,
-            "format": "email"
+            "type": "string"
           },
           "otp": {
-            "type": "string",
-            "minLength": 6,
-            "maxLength": 6,
-            "pattern": "^\\d{6}$"
+            "type": "string"
           }
         },
         "required": [
@@ -1116,9 +1811,7 @@
         "type": "object",
         "properties": {
           "email": {
-            "type": "string",
-            "maxLength": 254,
-            "format": "email"
+            "type": "string"
           }
         },
         "required": [
@@ -1129,8 +1822,7 @@
         "type": "object",
         "properties": {
           "idToken": {
-            "type": "string",
-            "maxLength": 10000
+            "type": "string"
           }
         },
         "required": [
@@ -1141,9 +1833,7 @@
         "type": "object",
         "properties": {
           "email": {
-            "type": "string",
-            "maxLength": 254,
-            "format": "email"
+            "type": "string"
           }
         },
         "required": [
@@ -1154,14 +1844,10 @@
         "type": "object",
         "properties": {
           "token": {
-            "type": "string",
-            "pattern": "^(0x|0h)?[0-9A-F]+$",
-            "minLength": 64,
-            "maxLength": 64
+            "type": "string"
           },
           "newPassword": {
-            "type": "string",
-            "maxLength": 128
+            "type": "string"
           }
         },
         "required": [
@@ -1173,12 +1859,10 @@
         "type": "object",
         "properties": {
           "currentPassword": {
-            "type": "string",
-            "maxLength": 128
+            "type": "string"
           },
           "newPassword": {
-            "type": "string",
-            "maxLength": 128
+            "type": "string"
           }
         },
         "required": [
@@ -1186,43 +1870,53 @@
           "newPassword"
         ]
       },
+      "BlockUserDto": {
+        "type": "object",
+        "properties": {
+          "isBlocked": {
+            "type": "boolean",
+            "description": "Whether to block (true) or unblock (false) the user",
+            "example": true
+          },
+          "reason": {
+            "type": "string",
+            "description": "Reason for blocking or unblocking the user",
+            "example": "Violation of community terms and conditions."
+          }
+        },
+        "required": [
+          "isBlocked"
+        ]
+      },
       "PersonalInfoDto": {
         "type": "object",
         "properties": {
           "firstName": {
-            "type": "string",
-            "maxLength": 100
+            "type": "string"
           },
           "middleName": {
-            "type": "string",
-            "maxLength": 100
+            "type": "string"
           },
           "lastName": {
-            "type": "string",
-            "maxLength": 100
+            "type": "string"
           },
           "dateOfBirth": {
             "type": "string"
           },
           "nationality": {
-            "type": "string",
-            "maxLength": 100
+            "type": "string"
           },
           "state": {
-            "type": "string",
-            "maxLength": 100
+            "type": "string"
           },
           "city": {
-            "type": "string",
-            "maxLength": 100
+            "type": "string"
           },
           "residentialAddress": {
-            "type": "string",
-            "maxLength": 500
+            "type": "string"
           },
           "phoneNumber": {
-            "type": "string",
-            "maxLength": 30
+            "type": "string"
           }
         }
       },
@@ -1230,24 +1924,19 @@
         "type": "object",
         "properties": {
           "instagram": {
-            "type": "string",
-            "maxLength": 200
+            "type": "string"
           },
           "facebook": {
-            "type": "string",
-            "maxLength": 200
+            "type": "string"
           },
           "twitter": {
-            "type": "string",
-            "maxLength": 200
+            "type": "string"
           },
           "tiktok": {
-            "type": "string",
-            "maxLength": 200
+            "type": "string"
           },
           "youtube": {
-            "type": "string",
-            "maxLength": 200
+            "type": "string"
           }
         }
       },
@@ -1255,12 +1944,12 @@
         "type": "object",
         "properties": {
           "type": {
+            "type": "string",
             "enum": [
               "governmentId",
               "proofOfAddress",
               "medicalRecords"
-            ],
-            "type": "string"
+            ]
           }
         },
         "required": [
@@ -1271,13 +1960,10 @@
         "type": "object",
         "properties": {
           "email": {
-            "type": "string",
-            "maxLength": 254,
-            "format": "email"
+            "type": "string"
           },
           "phoneNumber": {
-            "type": "string",
-            "maxLength": 30
+            "type": "string"
           }
         },
         "required": [
@@ -1288,8 +1974,7 @@
         "type": "object",
         "properties": {
           "reference": {
-            "type": "string",
-            "maxLength": 128
+            "type": "string"
           }
         },
         "required": [
@@ -1300,20 +1985,17 @@
         "type": "object",
         "properties": {
           "type": {
+            "type": "string",
             "enum": [
               "image",
               "video"
-            ],
-            "type": "string"
+            ]
           },
           "url": {
-            "type": "string",
-            "maxLength": 2048,
-            "format": "uri"
+            "type": "string"
           },
           "caption": {
-            "type": "string",
-            "maxLength": 500
+            "type": "string"
           }
         },
         "required": [
@@ -1325,11 +2007,9 @@
         "type": "object",
         "properties": {
           "content": {
-            "type": "string",
-            "maxLength": 5000
+            "type": "string"
           },
           "attachments": {
-            "maxItems": 4,
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/AttachmentDto"
@@ -1344,8 +2024,7 @@
         "type": "object",
         "properties": {
           "content": {
-            "type": "string",
-            "maxLength": 5000
+            "type": "string"
           }
         },
         "required": [
@@ -1376,6 +2055,165 @@
         },
         "required": [
           "contestantId"
+        ]
+      },
+      "StartCycleDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Name for the voting cycle (e.g. \"Week 3 Voting\", \"Semi-Finals\")",
+            "example": "Week 3 Voting"
+          }
+        },
+        "required": [
+          "name"
+        ]
+      },
+      "EliminateContestantDto": {
+        "type": "object",
+        "properties": {
+          "contestantId": {
+            "type": "string",
+            "description": "The ID of the contestant to eliminate",
+            "example": "60d21b4667d0d8992e610c85"
+          },
+          "reason": {
+            "type": "string",
+            "description": "Optional reason for the elimination",
+            "example": "Lowest votes in Week 3 cycle"
+          }
+        },
+        "required": [
+          "contestantId"
+        ]
+      },
+      "CreateContestantDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Full name of the contestant",
+            "example": "Amara Diallo"
+          },
+          "country": {
+            "type": "string",
+            "description": "Country represented by contestant",
+            "example": "Senegal"
+          },
+          "bio": {
+            "type": "string",
+            "description": "Contestant biography / pitch",
+            "example": "Passionate road trip adventurer from Dakar."
+          },
+          "imageUrl": {
+            "type": "string",
+            "description": "Profile image URL",
+            "example": "https://cdn.africabyroad.com/contestants/amara.jpg"
+          },
+          "currentStage": {
+            "type": "string",
+            "description": "Initial competition stage",
+            "enum": [
+              "Stage 1",
+              "Stage 2",
+              "Stage 3",
+              "Stage 4",
+              "Final"
+            ],
+            "default": "Stage 1"
+          },
+          "status": {
+            "type": "string",
+            "description": "Initial contestant status",
+            "enum": [
+              "pending",
+              "active",
+              "eliminated",
+              "winner"
+            ],
+            "default": "active"
+          }
+        },
+        "required": [
+          "name",
+          "country",
+          "bio",
+          "imageUrl"
+        ]
+      },
+      "UpdateContestantDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Updated contestant name",
+            "example": "Amara Diallo"
+          },
+          "country": {
+            "type": "string",
+            "description": "Updated country",
+            "example": "Senegal"
+          },
+          "bio": {
+            "type": "string",
+            "description": "Updated biography",
+            "example": "Updated bio details."
+          },
+          "imageUrl": {
+            "type": "string",
+            "description": "Updated profile image URL",
+            "example": "https://cdn.africabyroad.com/contestants/amara-v2.jpg"
+          }
+        }
+      },
+      "MoveContestantStageDto": {
+        "type": "object",
+        "properties": {
+          "stage": {
+            "type": "string",
+            "description": "Target competition stage",
+            "enum": [
+              "Stage 1",
+              "Stage 2",
+              "Stage 3",
+              "Stage 4",
+              "Final"
+            ],
+            "example": "Stage 2"
+          },
+          "reason": {
+            "type": "string",
+            "description": "Reason for moving the contestant to this stage",
+            "example": "Passed Stage 1 audition and voting criteria."
+          }
+        },
+        "required": [
+          "stage"
+        ]
+      },
+      "UpdateContestantStatusDto": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "description": "Updated contestant status",
+            "enum": [
+              "pending",
+              "active",
+              "eliminated",
+              "winner"
+            ],
+            "example": "active"
+          },
+          "reason": {
+            "type": "string",
+            "description": "Reason for status update",
+            "example": "Approved after identity verification."
+          }
+        },
+        "required": [
+          "status"
         ]
       }
     }

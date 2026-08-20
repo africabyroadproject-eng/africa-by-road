@@ -30,8 +30,8 @@ import { ContestantStatusType, UpdateContestantStatusDto } from './dto/update-co
  * Extracts the admin token payload from the request (set by AdminAuthGuard).
  */
 const CurrentAdmin = createParamDecorator((_data: unknown, ctx: ExecutionContext): AdminTokenPayload => {
-  const req = ctx.switchToHttp().getRequest<Request>();
-  return req.admin!;
+  const req = ctx.switchToHttp().getRequest();
+  return (req as any).admin!;
 });
 
 @ApiTags('Admin — Contestants Management')

@@ -11,7 +11,7 @@ export class AuditMiddleware implements NestMiddleware {
     res.on('finish', () => {
       const duration = Date.now() - start;
       this.logger.log(
-        `${req.method} ${req.path} ${res.statusCode} ${duration}ms user:${req.user?.id || 'anonymous'}`,
+        `${req.method} ${req.path} ${res.statusCode} ${duration}ms user:${(req.user as any)?.id || 'anonymous'}`,
       );
     });
 

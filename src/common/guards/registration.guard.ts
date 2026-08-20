@@ -13,7 +13,7 @@ export class RegistrationGuard implements CanActivate {
     const req = context.switchToHttp().getRequest<Request>();
 
     try {
-      const user = await this.touristModel.findById(req.user?.id);
+      const user = await this.touristModel.findById((req.user as any)?.id);
 
       if (!user) {
         throw new NotFoundException('User not found');
