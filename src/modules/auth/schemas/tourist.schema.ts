@@ -119,6 +119,18 @@ export class Tourist {
   @Prop({ type: String, enum: ['pending', 'in_progress', 'complete'], default: 'pending' })
   registrationStatus: 'pending' | 'in_progress' | 'complete';
 
+  @Prop({ default: 1 })
+  qualificationStep?: number;
+
+  @Prop({ default: false })
+  assessmentCompleted?: boolean;
+
+  @Prop({ type: [String], default: [] })
+  completedSteps?: string[];
+
+  @Prop({ type: Object, default: {} })
+  assessmentAnswers?: Record<string, any>;
+
   @Prop({ default: false })
   isBlocked?: boolean;
 
@@ -143,4 +155,5 @@ TouristSchema.index({ registrationStatus: 1 });
 TouristSchema.index({ isPaid: 1 });
 TouristSchema.index({ isEmailVerified: 1 });
 TouristSchema.index({ isBlocked: 1 });
+TouristSchema.index({ qualificationStep: 1 });
 

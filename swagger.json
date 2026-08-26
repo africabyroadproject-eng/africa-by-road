@@ -619,6 +619,36 @@
         ]
       }
     },
+    "/api/profile/assessment": {
+      "put": {
+        "operationId": "ProfileController_submitAssessment",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SubmitAssessmentDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "summary": "Submit qualification assessment checkpoint",
+        "tags": [
+          "Profile"
+        ]
+      }
+    },
     "/api/profile/status": {
       "get": {
         "operationId": "ProfileController_getRegistrationStatus",
@@ -680,7 +710,7 @@
         "parameters": [
           {
             "name": "country",
-            "required": true,
+            "required": false,
             "in": "query",
             "schema": {
               "type": "string"
@@ -803,7 +833,7 @@
         "parameters": [
           {
             "name": "page",
-            "required": true,
+            "required": false,
             "in": "query",
             "schema": {
               "type": "string"
@@ -811,7 +841,7 @@
           },
           {
             "name": "limit",
-            "required": true,
+            "required": false,
             "in": "query",
             "schema": {
               "type": "string"
@@ -868,7 +898,7 @@
         "parameters": [
           {
             "name": "q",
-            "required": true,
+            "required": false,
             "in": "query",
             "schema": {
               "type": "string"
@@ -963,7 +993,7 @@
           },
           {
             "name": "page",
-            "required": true,
+            "required": false,
             "in": "query",
             "schema": {
               "type": "string"
@@ -971,7 +1001,7 @@
           },
           {
             "name": "limit",
-            "required": true,
+            "required": false,
             "in": "query",
             "schema": {
               "type": "string"
@@ -1200,7 +1230,7 @@
         "parameters": [
           {
             "name": "page",
-            "required": true,
+            "required": false,
             "in": "query",
             "schema": {
               "type": "string"
@@ -1208,7 +1238,7 @@
           },
           {
             "name": "limit",
-            "required": true,
+            "required": false,
             "in": "query",
             "schema": {
               "type": "string"
@@ -1277,7 +1307,14 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -1297,7 +1334,7 @@
         "parameters": [
           {
             "name": "page",
-            "required": true,
+            "required": false,
             "in": "query",
             "schema": {
               "type": "string"
@@ -1305,7 +1342,7 @@
           },
           {
             "name": "limit",
-            "required": true,
+            "required": false,
             "in": "query",
             "schema": {
               "type": "string"
@@ -1783,22 +1820,29 @@
         "type": "object",
         "properties": {
           "email": {
-            "type": "string"
+            "type": "string",
+            "maxLength": 254,
+            "format": "email"
           },
           "password": {
-            "type": "string"
+            "type": "string",
+            "maxLength": 128
           },
           "firstName": {
-            "type": "string"
+            "type": "string",
+            "maxLength": 100
           },
           "lastName": {
-            "type": "string"
+            "type": "string",
+            "maxLength": 100
           },
           "phoneNumber": {
-            "type": "string"
+            "type": "string",
+            "maxLength": 30
           },
           "nationality": {
-            "type": "string"
+            "type": "string",
+            "maxLength": 100
           }
         },
         "required": [
@@ -1812,10 +1856,13 @@
         "type": "object",
         "properties": {
           "email": {
-            "type": "string"
+            "type": "string",
+            "maxLength": 254,
+            "format": "email"
           },
           "password": {
-            "type": "string"
+            "type": "string",
+            "maxLength": 128
           }
         },
         "required": [
@@ -1827,10 +1874,15 @@
         "type": "object",
         "properties": {
           "email": {
-            "type": "string"
+            "type": "string",
+            "maxLength": 254,
+            "format": "email"
           },
           "otp": {
-            "type": "string"
+            "type": "string",
+            "minLength": 6,
+            "maxLength": 6,
+            "pattern": "^\\d{6}$"
           }
         },
         "required": [
@@ -1842,7 +1894,9 @@
         "type": "object",
         "properties": {
           "email": {
-            "type": "string"
+            "type": "string",
+            "maxLength": 254,
+            "format": "email"
           }
         },
         "required": [
@@ -1853,7 +1907,8 @@
         "type": "object",
         "properties": {
           "idToken": {
-            "type": "string"
+            "type": "string",
+            "maxLength": 10000
           }
         },
         "required": [
@@ -1864,7 +1919,9 @@
         "type": "object",
         "properties": {
           "email": {
-            "type": "string"
+            "type": "string",
+            "maxLength": 254,
+            "format": "email"
           }
         },
         "required": [
@@ -1875,10 +1932,14 @@
         "type": "object",
         "properties": {
           "token": {
-            "type": "string"
+            "type": "string",
+            "pattern": "^(0x|0h)?[0-9A-F]+$",
+            "minLength": 64,
+            "maxLength": 64
           },
           "newPassword": {
-            "type": "string"
+            "type": "string",
+            "maxLength": 128
           }
         },
         "required": [
@@ -1890,10 +1951,12 @@
         "type": "object",
         "properties": {
           "currentPassword": {
-            "type": "string"
+            "type": "string",
+            "maxLength": 128
           },
           "newPassword": {
-            "type": "string"
+            "type": "string",
+            "maxLength": 128
           }
         },
         "required": [
@@ -1906,6 +1969,7 @@
         "properties": {
           "email": {
             "type": "string",
+            "format": "email",
             "example": "admin@africabyroad.com"
           },
           "password": {
@@ -1928,6 +1992,7 @@
           },
           "reason": {
             "type": "string",
+            "maxLength": 500,
             "description": "Reason for blocking or unblocking the user",
             "example": "Violation of community terms and conditions."
           }
@@ -1940,31 +2005,39 @@
         "type": "object",
         "properties": {
           "firstName": {
-            "type": "string"
+            "type": "string",
+            "maxLength": 100
           },
           "middleName": {
-            "type": "string"
+            "type": "string",
+            "maxLength": 100
           },
           "lastName": {
-            "type": "string"
+            "type": "string",
+            "maxLength": 100
           },
           "dateOfBirth": {
             "type": "string"
           },
           "nationality": {
-            "type": "string"
+            "type": "string",
+            "maxLength": 100
           },
           "state": {
-            "type": "string"
+            "type": "string",
+            "maxLength": 100
           },
           "city": {
-            "type": "string"
+            "type": "string",
+            "maxLength": 100
           },
           "residentialAddress": {
-            "type": "string"
+            "type": "string",
+            "maxLength": 500
           },
           "phoneNumber": {
-            "type": "string"
+            "type": "string",
+            "maxLength": 30
           }
         }
       },
@@ -1972,19 +2045,24 @@
         "type": "object",
         "properties": {
           "instagram": {
-            "type": "string"
+            "type": "string",
+            "maxLength": 200
           },
           "facebook": {
-            "type": "string"
+            "type": "string",
+            "maxLength": 200
           },
           "twitter": {
-            "type": "string"
+            "type": "string",
+            "maxLength": 200
           },
           "tiktok": {
-            "type": "string"
+            "type": "string",
+            "maxLength": 200
           },
           "youtube": {
-            "type": "string"
+            "type": "string",
+            "maxLength": 200
           }
         }
       },
@@ -1992,26 +2070,59 @@
         "type": "object",
         "properties": {
           "type": {
-            "type": "string",
             "enum": [
               "governmentId",
               "proofOfAddress",
               "medicalRecords"
-            ]
+            ],
+            "type": "string"
           }
         },
         "required": [
           "type"
         ]
       },
+      "SubmitAssessmentDto": {
+        "type": "object",
+        "properties": {
+          "step": {
+            "enum": [
+              "requirements",
+              "personality_test",
+              "online_interview",
+              "shortlisted"
+            ],
+            "type": "string",
+            "description": "Assessment qualification step name"
+          },
+          "completedItems": {
+            "description": "Array of completed requirement checklist item identifiers",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "answers": {
+            "type": "object",
+            "additionalProperties": true,
+            "description": "Key-value map of assessment answer values"
+          }
+        },
+        "required": [
+          "step"
+        ]
+      },
       "CreateCheckoutDto": {
         "type": "object",
         "properties": {
           "email": {
-            "type": "string"
+            "type": "string",
+            "maxLength": 254,
+            "format": "email"
           },
           "phoneNumber": {
-            "type": "string"
+            "type": "string",
+            "maxLength": 30
           }
         },
         "required": [
@@ -2022,7 +2133,8 @@
         "type": "object",
         "properties": {
           "reference": {
-            "type": "string"
+            "type": "string",
+            "maxLength": 128
           }
         },
         "required": [
@@ -2033,17 +2145,20 @@
         "type": "object",
         "properties": {
           "type": {
-            "type": "string",
             "enum": [
               "image",
               "video"
-            ]
+            ],
+            "type": "string"
           },
           "url": {
-            "type": "string"
+            "type": "string",
+            "maxLength": 2048,
+            "format": "uri"
           },
           "caption": {
-            "type": "string"
+            "type": "string",
+            "maxLength": 500
           }
         },
         "required": [
@@ -2055,9 +2170,11 @@
         "type": "object",
         "properties": {
           "content": {
-            "type": "string"
+            "type": "string",
+            "maxLength": 5000
           },
           "attachments": {
+            "maxItems": 4,
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/AttachmentDto"
@@ -2072,7 +2189,8 @@
         "type": "object",
         "properties": {
           "content": {
-            "type": "string"
+            "type": "string",
+            "maxLength": 5000
           }
         },
         "required": [
@@ -2110,6 +2228,7 @@
         "properties": {
           "name": {
             "type": "string",
+            "maxLength": 100,
             "description": "Name for the voting cycle (e.g. \"Week 3 Voting\", \"Semi-Finals\")",
             "example": "Week 3 Voting"
           }
@@ -2128,6 +2247,7 @@
           },
           "reason": {
             "type": "string",
+            "maxLength": 500,
             "description": "Optional reason for the elimination",
             "example": "Lowest votes in Week 3 cycle"
           }
@@ -2141,27 +2261,29 @@
         "properties": {
           "name": {
             "type": "string",
+            "maxLength": 100,
             "description": "Full name of the contestant",
             "example": "Amara Diallo"
           },
           "country": {
             "type": "string",
+            "maxLength": 100,
             "description": "Country represented by contestant",
             "example": "Senegal"
           },
           "bio": {
             "type": "string",
+            "maxLength": 2000,
             "description": "Contestant biography / pitch",
             "example": "Passionate road trip adventurer from Dakar."
           },
           "imageUrl": {
             "type": "string",
+            "format": "uri",
             "description": "Profile image URL",
             "example": "https://cdn.africabyroad.com/contestants/amara.jpg"
           },
           "currentStage": {
-            "type": "string",
-            "description": "Initial competition stage",
             "enum": [
               "Stage 1",
               "Stage 2",
@@ -2169,17 +2291,19 @@
               "Stage 4",
               "Final"
             ],
+            "type": "string",
+            "description": "Initial competition stage",
             "default": "Stage 1"
           },
           "status": {
-            "type": "string",
-            "description": "Initial contestant status",
             "enum": [
               "pending",
               "active",
               "eliminated",
               "winner"
             ],
+            "type": "string",
+            "description": "Initial contestant status",
             "default": "active"
           }
         },
@@ -2195,21 +2319,25 @@
         "properties": {
           "name": {
             "type": "string",
+            "maxLength": 100,
             "description": "Updated contestant name",
             "example": "Amara Diallo"
           },
           "country": {
             "type": "string",
+            "maxLength": 100,
             "description": "Updated country",
             "example": "Senegal"
           },
           "bio": {
             "type": "string",
+            "maxLength": 2000,
             "description": "Updated biography",
             "example": "Updated bio details."
           },
           "imageUrl": {
             "type": "string",
+            "format": "uri",
             "description": "Updated profile image URL",
             "example": "https://cdn.africabyroad.com/contestants/amara-v2.jpg"
           }
@@ -2219,8 +2347,6 @@
         "type": "object",
         "properties": {
           "stage": {
-            "type": "string",
-            "description": "Target competition stage",
             "enum": [
               "Stage 1",
               "Stage 2",
@@ -2228,10 +2354,13 @@
               "Stage 4",
               "Final"
             ],
+            "type": "string",
+            "description": "Target competition stage",
             "example": "Stage 2"
           },
           "reason": {
             "type": "string",
+            "maxLength": 500,
             "description": "Reason for moving the contestant to this stage",
             "example": "Passed Stage 1 audition and voting criteria."
           }
@@ -2244,18 +2373,19 @@
         "type": "object",
         "properties": {
           "status": {
-            "type": "string",
-            "description": "Updated contestant status",
             "enum": [
               "pending",
               "active",
               "eliminated",
               "winner"
             ],
+            "type": "string",
+            "description": "Updated contestant status",
             "example": "active"
           },
           "reason": {
             "type": "string",
+            "maxLength": 500,
             "description": "Reason for status update",
             "example": "Approved after identity verification."
           }

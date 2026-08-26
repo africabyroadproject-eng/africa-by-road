@@ -71,7 +71,7 @@ describe('ProfileService', () => {
 
     expect(result.progress).toBe(100);
     expect(result.missingFields).toEqual([]);
-    expect(result.nextStep).toBeNull();
+    expect(result.nextStep).toBe('requirements');
   });
 
   it('sets registrationStatus to in_progress after a personal info update', async () => {
@@ -85,5 +85,29 @@ describe('ProfileService', () => {
     expect(user.registrationStatus).toBe('in_progress');
     expect(save).toHaveBeenCalled();
     expect(result.registrationStatus).toBe('in_progress');
+  });
+
+  it('records requirements assessment submission and advances qualification step to 3', async () => {
+    const save = jest.fn().mockResolvedValue(undefined);
+    const markModified = jest.fn();
+    const user: any = {
+      qualificationStep: 2,
+      completedSteps: ['registration'],
+      assessmentAnswers: {},
+      save,
+      markModified,
+    };
+    touristModel.findById.mockResolvedValue(user);
+
+    const result = await profileService.submitAssessment('tourist-id', {
+      step: 'requirements',
+      completedItems: ['travel-readiness', 'vehicle-access'],
+    });
+
+    expect(user.qualificationStep).toBe(3);
+    expect(user.completedSteps).toEqual(['registration', 'requirements']);
+    expect(result.nextStep).toBe('personality_test');
+    expect(result.isPassed).toBe(true);
+    expect(save).toHaveBeenCalled();
   });
 });

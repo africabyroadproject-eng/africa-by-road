@@ -23,5 +23,16 @@ export function getMissingRegistrationFields(user: TouristDocument): string[] {
   return missing;
 }
 export function syncRegistrationStatus(user: TouristDocument): void {
-  user.registrationStatus = getMissingRegistrationFields(user).length === 0 ? 'complete' : 'in_progress';
+  const isComplete = getMissingRegistrationFields(user).length === 0;
+  user.registrationStatus = isComplete ? 'complete' : 'in_progress';
+
+  if (isComplete) {
+    if (!user.completedSteps) user.completedSteps = [];
+    if (!user.completedSteps.includes('registration')) {
+      user.completedSteps.push('registration');
+    }
+    if (!user.qualificationStep || user.qualificationStep === 1) {
+      user.qualificationStep = 2;
+    }
+  }
 }

@@ -6,6 +6,7 @@ import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { TokenPayload } from '../../common/interfaces/token-payload.interface';
 import { PersonalInfoDto } from './dto/personal-info.dto';
 import { SocialMediaDto } from './dto/social-media.dto';
+import { SubmitAssessmentDto } from './dto/submit-assessment.dto';
 import { UploadDocumentDto } from './dto/upload-document.dto';
 import { ProfileService } from './profile.service';
 
@@ -41,6 +42,12 @@ export class ProfileController {
   uploadDocuments(@CurrentUser() user: TokenPayload, @Body() dto: UploadDocumentDto, @UploadedFile() file?: Express.Multer.File) {
     if (!file) throw new BadRequestException('Document file is required');
     return this.profileService.uploadDocument(user.id, dto, file);
+  }
+
+  @Put('assessment')
+  @ApiOperation({ summary: 'Submit qualification assessment checkpoint' })
+  submitAssessment(@CurrentUser() user: TokenPayload, @Body() dto: SubmitAssessmentDto) {
+    return this.profileService.submitAssessment(user.id, dto);
   }
 
   @Get('status')
