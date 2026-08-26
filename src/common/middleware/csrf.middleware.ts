@@ -20,6 +20,11 @@ export class CsrfMiddleware implements NestMiddleware {
       return;
     }
 
+    if (this.allowedOrigins.has('*')) {
+      next();
+      return;
+    }
+
     const origin = req.headers.origin?.replace(/\/$/, '');
     if (!origin || !this.allowedOrigins.has(origin)) {
       res.status(403).json({ message: 'Request origin is not allowed' });
