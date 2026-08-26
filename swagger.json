@@ -308,6 +308,37 @@
         ]
       }
     },
+    "/api/admin/auth/login": {
+      "post": {
+        "operationId": "AdminAuthController_login",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminLoginDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Admin login successful"
+          },
+          "401": {
+            "description": "Invalid credentials"
+          },
+          "403": {
+            "description": "Account disabled"
+          }
+        },
+        "summary": "Admin login",
+        "tags": [
+          "Admin — Authentication"
+        ]
+      }
+    },
     "/api/admin/users": {
       "get": {
         "operationId": "AdminUsersController_listUsers",
@@ -1868,6 +1899,23 @@
         "required": [
           "currentPassword",
           "newPassword"
+        ]
+      },
+      "AdminLoginDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "example": "admin@africabyroad.com"
+          },
+          "password": {
+            "type": "string",
+            "example": "AdminPass123!"
+          }
+        },
+        "required": [
+          "email",
+          "password"
         ]
       },
       "BlockUserDto": {
