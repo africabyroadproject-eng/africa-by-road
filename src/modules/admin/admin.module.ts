@@ -3,10 +3,13 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { MongooseModule } from '@nestjs/mongoose';
 import { AdminAuthController } from './admin-auth.controller';
+import { AdminAuditController } from './admin-audit.controller';
 import { AdminUsersController } from './admin-users.controller';
 import { AdminUsersService } from './admin-users.service';
 import { AdminService } from './admin.service';
 import { Admin, AdminSchema } from './schemas/admin.schema';
+import { AuditLog, AuditLogSchema } from '../../common/schemas/audit-log.schema';
+import { AuditService } from '../../common/services/audit.service';
 import { Tourist, TouristSchema } from '../auth/schemas/tourist.schema';
 import { AuthModule } from '../auth/auth.module';
 
@@ -29,11 +32,12 @@ import { AuthModule } from '../auth/auth.module';
     }),
     MongooseModule.forFeature([
       { name: Admin.name, schema: AdminSchema },
+      { name: AuditLog.name, schema: AuditLogSchema },
       { name: Tourist.name, schema: TouristSchema },
     ]),
   ],
-  controllers: [AdminAuthController, AdminUsersController],
-  providers: [AdminService, AdminUsersService],
-  exports: [AdminService, AdminUsersService],
+  controllers: [AdminAuthController, AdminAuditController, AdminUsersController],
+  providers: [AdminService, AdminUsersService, AuditService],
+  exports: [AdminService, AdminUsersService, AuditService],
 })
 export class AdminModule {}

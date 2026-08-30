@@ -3,6 +3,8 @@ import { getModelToken } from '@nestjs/mongoose';
 import { Test } from '@nestjs/testing';
 import { GiveawayService } from './giveaway.service';
 import { GiveawaySpin } from './schemas/giveaway-spin.schema';
+import { Prize } from './schemas/prize.schema';
+import { PrizeSnapshot } from './schemas/prize-snapshot.schema';
 import { TriviaQuestion } from './schemas/trivia-question.schema';
 import { TriviaResponse } from './schemas/trivia-response.schema';
 
@@ -13,11 +15,22 @@ describe('GiveawayService', () => {
   let giveawaySpinModel: any;
   let triviaQuestionModel: any;
   let triviaResponseModel: any;
+  let prizeModel: any;
+  let prizeSnapshotModel: any;
 
   beforeEach(async () => {
     giveawaySpinModel = { create: jest.fn(), findOne: jest.fn(), find: jest.fn(), findById: jest.fn() };
     triviaQuestionModel = { findOne: jest.fn(), findById: jest.fn() };
     triviaResponseModel = { create: jest.fn(), findOne: jest.fn() };
+    prizeModel = {
+      find: jest.fn().mockReturnValue({ lean: jest.fn().mockResolvedValue([]) }),
+      findOneAndUpdate: jest.fn(),
+      countDocuments: jest.fn().mockResolvedValue(0),
+    };
+    prizeSnapshotModel = {
+      create: jest.fn(),
+      find: jest.fn().mockReturnValue({ sort: jest.fn().mockReturnValue({ limit: jest.fn().mockReturnValue({ lean: jest.fn().mockResolvedValue([]) }) }) }),
+    };
 
     const moduleRef = await Test.createTestingModule({
       providers: [
@@ -25,6 +38,8 @@ describe('GiveawayService', () => {
         { provide: getModelToken(GiveawaySpin.name), useValue: giveawaySpinModel },
         { provide: getModelToken(TriviaQuestion.name), useValue: triviaQuestionModel },
         { provide: getModelToken(TriviaResponse.name), useValue: triviaResponseModel },
+        { provide: getModelToken(Prize.name), useValue: prizeModel },
+        { provide: getModelToken(PrizeSnapshot.name), useValue: prizeSnapshotModel },
       ],
     }).compile();
 
@@ -41,12 +56,13 @@ describe('GiveawayService', () => {
       );
     });
 
-    it('records a spin and returns the prize on success', async () => {
-      giveawaySpinModel.create.mockResolvedValue({ prize: 'Water Bottle' });
+    it('returns No Win when no prizes are available', async () => {
+      // prizeModel.find already returns empty array
+      giveawaySpinModel.create.mockResolvedValue({ prize: 'No Win' });
 
       const result = await giveawayService.spin(TOURIST_ID);
 
-      expect(result).toEqual({ prize: 'Water Bottle', message: 'Spin completed' });
+      expect(result).toEqual({ prize: 'No Win', message: 'Spin completed' });
     });
 
     it('rethrows unrelated database errors', async () => {

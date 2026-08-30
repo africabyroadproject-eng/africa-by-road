@@ -339,6 +339,126 @@
         ]
       }
     },
+    "/api/admin/audit-logs": {
+      "get": {
+        "operationId": "AdminAuditController_listLogs",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "module",
+            "required": false,
+            "in": "query",
+            "description": "Filter by module name",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "adminId",
+            "required": false,
+            "in": "query",
+            "description": "Filter by admin user ID",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "action",
+            "required": false,
+            "in": "query",
+            "description": "Filter by action (supports partial match)",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "targetType",
+            "required": false,
+            "in": "query",
+            "description": "Filter by target type",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "startDate",
+            "required": false,
+            "in": "query",
+            "description": "Start date (ISO 8601)",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "endDate",
+            "required": false,
+            "in": "query",
+            "description": "End date (ISO 8601)",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "summary": "List audit logs with filters and pagination (superadmin only)",
+        "tags": [
+          "Admin — Audit Logs"
+        ]
+      }
+    },
+    "/api/admin/audit-logs/{id}": {
+      "get": {
+        "operationId": "AdminAuditController_getLogDetail",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "summary": "Get a single audit log entry by ID",
+        "tags": [
+          "Admin — Audit Logs"
+        ]
+      }
+    },
     "/api/admin/users": {
       "get": {
         "operationId": "AdminUsersController_listUsers",
@@ -827,6 +947,43 @@
         ]
       }
     },
+    "/api/payments/history": {
+      "get": {
+        "operationId": "PaymentsController_getPaymentHistory",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "summary": "Get payment history for the authenticated user",
+        "tags": [
+          "Payments"
+        ]
+      }
+    },
     "/api/community/messages": {
       "get": {
         "operationId": "CommunityController_listMessages",
@@ -1221,6 +1378,427 @@
         "summary": "Get spin record by ID",
         "tags": [
           "Giveaway"
+        ]
+      }
+    },
+    "/api/admin/trivia": {
+      "get": {
+        "operationId": "AdminTriviaController_listQuestions",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "category",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "isActive",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "search",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "summary": "List all trivia questions with filters and pagination",
+        "tags": [
+          "Admin — Trivia Management"
+        ]
+      },
+      "post": {
+        "operationId": "AdminTriviaController_createQuestion",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateTriviaDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "summary": "Create a new trivia question",
+        "tags": [
+          "Admin — Trivia Management"
+        ]
+      }
+    },
+    "/api/admin/trivia/stats": {
+      "get": {
+        "operationId": "AdminTriviaController_getStats",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "summary": "Get trivia summary statistics",
+        "tags": [
+          "Admin — Trivia Management"
+        ]
+      }
+    },
+    "/api/admin/trivia/{id}": {
+      "get": {
+        "operationId": "AdminTriviaController_getQuestionDetail",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "summary": "Get trivia question detail with response count and change history",
+        "tags": [
+          "Admin — Trivia Management"
+        ]
+      },
+      "patch": {
+        "operationId": "AdminTriviaController_updateQuestion",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateTriviaDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "summary": "Update a trivia question (logs changes to correct answer if submissions exist)",
+        "tags": [
+          "Admin — Trivia Management"
+        ]
+      },
+      "delete": {
+        "operationId": "AdminTriviaController_deleteQuestion",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "summary": "Soft-delete a trivia question (preserves response history)",
+        "tags": [
+          "Admin — Trivia Management"
+        ]
+      }
+    },
+    "/api/admin/trivia/{id}/toggle": {
+      "patch": {
+        "operationId": "AdminTriviaController_toggleActive",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "summary": "Toggle trivia question active/inactive status",
+        "tags": [
+          "Admin — Trivia Management"
+        ]
+      }
+    },
+    "/api/admin/spin-wheel/prizes": {
+      "get": {
+        "operationId": "AdminSpinController_listPrizes",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "summary": "List all prize slots with stock levels (max 10)",
+        "tags": [
+          "Admin — Spin-the-Wheel Prize Management"
+        ]
+      },
+      "post": {
+        "operationId": "AdminSpinController_createPrize",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreatePrizeDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "summary": "Create a new prize slot (max 10 total)",
+        "tags": [
+          "Admin — Spin-the-Wheel Prize Management"
+        ]
+      }
+    },
+    "/api/admin/spin-wheel/prizes/stats": {
+      "get": {
+        "operationId": "AdminSpinController_getStats",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "summary": "Get spin-the-wheel prize summary statistics",
+        "tags": [
+          "Admin — Spin-the-Wheel Prize Management"
+        ]
+      }
+    },
+    "/api/admin/spin-wheel/prizes/{id}": {
+      "get": {
+        "operationId": "AdminSpinController_getPrizeDetail",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "summary": "Get single prize slot details with award history count",
+        "tags": [
+          "Admin — Spin-the-Wheel Prize Management"
+        ]
+      },
+      "patch": {
+        "operationId": "AdminSpinController_updatePrize",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdatePrizeDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "summary": "Update prize slot (name, stock, weight, description, position)",
+        "tags": [
+          "Admin — Spin-the-Wheel Prize Management"
+        ]
+      },
+      "delete": {
+        "operationId": "AdminSpinController_deletePrize",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "summary": "Delete a prize slot (soft-delete preserves award history)",
+        "tags": [
+          "Admin — Spin-the-Wheel Prize Management"
+        ]
+      }
+    },
+    "/api/admin/spin-wheel/prizes/{id}/toggle": {
+      "patch": {
+        "operationId": "AdminSpinController_toggleActive",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "summary": "Toggle prize slot active/inactive status",
+        "tags": [
+          "Admin — Spin-the-Wheel Prize Management"
         ]
       }
     },
@@ -2211,6 +2789,173 @@
           "questionId",
           "selectedAnswer"
         ]
+      },
+      "CreateTriviaDto": {
+        "type": "object",
+        "properties": {
+          "question": {
+            "type": "string",
+            "minLength": 10,
+            "description": "The trivia question text",
+            "example": "What is the longest river in Africa?"
+          },
+          "options": {
+            "description": "Array of answer options (2–6 choices)",
+            "example": [
+              "Nile",
+              "Congo",
+              "Niger",
+              "Zambezi"
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "correctAnswer": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Zero-based index of the correct answer in the options array",
+            "example": 0
+          },
+          "category": {
+            "type": "string",
+            "description": "Category tag for grouping",
+            "example": "geography",
+            "default": "general"
+          },
+          "periodStart": {
+            "type": "string",
+            "description": "Start of the active answering window (ISO 8601)",
+            "example": "2026-09-01T00:00:00Z"
+          },
+          "periodEnd": {
+            "type": "string",
+            "description": "End of the active answering window (ISO 8601)",
+            "example": "2026-09-07T23:59:59Z"
+          }
+        },
+        "required": [
+          "question",
+          "options",
+          "correctAnswer"
+        ]
+      },
+      "UpdateTriviaDto": {
+        "type": "object",
+        "properties": {
+          "question": {
+            "type": "string",
+            "minLength": 10,
+            "description": "The trivia question text"
+          },
+          "options": {
+            "description": "Array of answer options",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "correctAnswer": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Zero-based index of the correct answer"
+          },
+          "category": {
+            "type": "string",
+            "description": "Category tag for grouping"
+          },
+          "periodStart": {
+            "type": "string",
+            "description": "Start of the active answering window (ISO 8601)"
+          },
+          "periodEnd": {
+            "type": "string",
+            "description": "End of the active answering window (ISO 8601)"
+          },
+          "reason": {
+            "type": "string",
+            "description": "Reason for this update (used in change logging when correct answer changes)"
+          }
+        }
+      },
+      "CreatePrizeDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Prize display name",
+            "example": "Travel Backpack"
+          },
+          "description": {
+            "type": "string",
+            "description": "Prize description"
+          },
+          "imageUrl": {
+            "type": "string",
+            "description": "Prize image URL"
+          },
+          "quantity": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Available stock quantity",
+            "example": 50
+          },
+          "weight": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 100,
+            "description": "Probability weight (1–100). Higher = more likely",
+            "example": 10
+          },
+          "position": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 10,
+            "description": "Wheel slot position (1–10)",
+            "example": 1
+          }
+        },
+        "required": [
+          "name",
+          "quantity",
+          "weight",
+          "position"
+        ]
+      },
+      "UpdatePrizeDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Prize display name"
+          },
+          "description": {
+            "type": "string",
+            "description": "Prize description"
+          },
+          "imageUrl": {
+            "type": "string",
+            "description": "Prize image URL"
+          },
+          "quantity": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Available stock quantity"
+          },
+          "weight": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 100,
+            "description": "Probability weight (1–100)"
+          },
+          "position": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 10,
+            "description": "Wheel slot position (1–10)"
+          }
+        }
       },
       "VoteFavoriteDto": {
         "type": "object",

@@ -5,6 +5,7 @@ import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
 import { AppController } from './app.controller';
 import { AuditMiddleware } from './common/middleware/audit.middleware';
+import { AuditLog, AuditLogSchema } from './common/schemas/audit-log.schema';
 import { AuditService } from './common/services/audit.service';
 import authConfig from './config/auth.config';
 import databaseConfig from './config/database.config';
@@ -60,6 +61,9 @@ import { PaymentsModule } from './modules/payments/payments.module';
     GiveawayModule,
     VoteModule,
     PaymentsModule,
+    MongooseModule.forFeature([
+      { name: AuditLog.name, schema: AuditLogSchema },
+    ]),
   ],
   controllers: [AppController],
   providers: [
