@@ -2,6 +2,7 @@ import { BadRequestException, Injectable, Logger, NotFoundException } from '@nes
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Tourist, TouristDocument } from '../auth/schemas/tourist.schema';
+import { DocumentStorageService } from '../profile/document-storage.service';
 import { BlockUserDto } from './dto/block-user.dto';
 
 export interface UserSummaryStats {
@@ -31,7 +32,23 @@ export class AdminUsersService {
 
   constructor(
     @InjectModel(Tourist.name) private readonly touristModel: Model<TouristDocument>,
+    private readonly documentStorage: DocumentStorageService,
   ) {}
+
+  private enrichUserDocuments(user: any) {
+    if (!user) return user;
+    const docFields = ['governmentId', 'proofOfAddress', 'medicalRecords'] as const;
+    for (const field of docFields) {
+      if (user[field]?.storageKey && !user[field]?.url) {
+        user[field].url = this.documentStorage.getDocumentUrl(
+          user[field].storageKey,
+          user[field].resourceType,
+          user[field].format,
+        );
+      }
+    }
+    return user;
+  }
 
   /**
    * List users with pagination, filters, search, and aggregate user summary stats.
@@ -81,6 +98,8 @@ export class AdminUsersService {
       this.getUserSummaryStats(),
     ]);
 
+    users.forEach((user) => this.enrichUserDocuments(user));
+
     return {
       total,
       page,
@@ -112,7 +131,7 @@ export class AdminUsersService {
       throw new NotFoundException('User not found');
     }
 
-    return user as unknown as TouristDocument;
+    return this.enrichUserDocuments(user) as unknown as TouristDocument;
   }
 
   /**

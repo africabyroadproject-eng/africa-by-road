@@ -15,6 +15,7 @@ function hasValidSignature(file: Express.Multer.File): boolean {
 }
 export interface StoredDocument {
   name: string;
+  url?: string;
   storageKey: string;
   resourceType: string;
   format: string;
@@ -32,6 +33,17 @@ export class DocumentStorageService {
     const apiSecret = configService.get<string>('CLOUDINARY_API_SECRET');
     this.configured = Boolean(cloudName && apiKey && apiSecret);
     if (this.configured) cloudinary.config({ cloud_name: cloudName, api_key: apiKey, api_secret: apiSecret, secure: true });
+  }
+
+  getDocumentUrl(storageKey?: string, resourceType = 'image', format?: string): string | null {
+    if (!storageKey || !this.configured) return null;
+    return cloudinary.url(storageKey, {
+      type: 'authenticated',
+      sign_url: true,
+      secure: true,
+      resource_type: resourceType,
+      ...(format ? { format } : {}),
+    });
   }
 
   async upload(file: Express.Multer.File, touristId: string, documentType: string): Promise<StoredDocument> {
@@ -58,8 +70,11 @@ export class DocumentStorageService {
       stream.end(file.buffer);
     });
 
+    const url = this.getDocumentUrl(result.public_id, result.resource_type, result.format) || result.secure_url;
+
     return {
       name: cleanName,
+      url,
       storageKey: result.public_id,
       resourceType: result.resource_type,
       format: result.format,

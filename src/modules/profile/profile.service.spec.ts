@@ -8,14 +8,20 @@ describe('ProfileService', () => {
   let profileService: ProfileService;
   let touristModel: { findById: jest.Mock };
 
+  let documentStorageService: { upload: jest.Mock; getDocumentUrl: jest.Mock };
+
   beforeEach(async () => {
     touristModel = { findById: jest.fn() };
+    documentStorageService = {
+      upload: jest.fn(),
+      getDocumentUrl: jest.fn().mockImplementation((key) => `https://signed.cloudinary.com/${key}`),
+    };
 
     const moduleRef = await Test.createTestingModule({
       providers: [
         ProfileService,
         { provide: getModelToken('Tourist'), useValue: touristModel },
-        { provide: DocumentStorageService, useValue: { upload: jest.fn() } },
+        { provide: DocumentStorageService, useValue: documentStorageService },
       ],
     }).compile();
 
@@ -109,5 +115,31 @@ describe('ProfileService', () => {
     expect(result.nextStep).toBe('personality_test');
     expect(result.isPassed).toBe(true);
     expect(save).toHaveBeenCalled();
+  });
+
+  it('returns profile with resolved document URLs for uploaded documents', async () => {
+    const user: any = {
+      email: 'user@example.com',
+      firstName: 'John',
+      lastName: 'Doe',
+      governmentId: { name: 'id.jpg', storageKey: 'id-key', resourceType: 'image', format: 'jpg' },
+      proofOfAddress: { name: 'bill.pdf', storageKey: 'bill-key', resourceType: 'image', format: 'pdf' },
+      medicalRecords: null,
+    };
+    touristModel.findById.mockResolvedValue(user);
+
+    const result = await profileService.getProfile('tourist-id');
+
+    expect(result.profile.governmentId).toEqual({
+      name: 'id.jpg',
+      url: 'https://signed.cloudinary.com/id-key',
+      uploadedAt: undefined,
+    });
+    expect(result.profile.proofOfAddress).toEqual({
+      name: 'bill.pdf',
+      url: 'https://signed.cloudinary.com/bill-key',
+      uploadedAt: undefined,
+    });
+    expect(result.profile.medicalRecords).toBeNull();
   });
 });

@@ -4,6 +4,7 @@ import { Test } from '@nestjs/testing';
 import { Types } from 'mongoose';
 import { AdminUsersService } from './admin-users.service';
 import { Tourist } from '../auth/schemas/tourist.schema';
+import { DocumentStorageService } from '../profile/document-storage.service';
 
 const ADMIN_ID = new Types.ObjectId().toString();
 const USER_ID = new Types.ObjectId().toString();
@@ -11,6 +12,7 @@ const USER_ID = new Types.ObjectId().toString();
 describe('AdminUsersService', () => {
   let adminUsersService: AdminUsersService;
   let touristModel: any;
+  let documentStorageService: { getDocumentUrl: jest.Mock };
 
   beforeEach(async () => {
     touristModel = {
@@ -19,11 +21,15 @@ describe('AdminUsersService', () => {
       findById: jest.fn(),
       aggregate: jest.fn(),
     };
+    documentStorageService = {
+      getDocumentUrl: jest.fn().mockImplementation((key) => `https://signed.cloudinary.com/${key}`),
+    };
 
     const moduleRef = await Test.createTestingModule({
       providers: [
         AdminUsersService,
         { provide: getModelToken(Tourist.name), useValue: touristModel },
+        { provide: DocumentStorageService, useValue: documentStorageService },
       ],
     }).compile();
 
@@ -95,6 +101,28 @@ describe('AdminUsersService', () => {
 
       const result = await adminUsersService.getUserDetail(USER_ID);
       expect(result).toEqual(mockUser);
+    });
+
+    it('enriches governmentId, proofOfAddress, and medicalRecords with signed URLs', async () => {
+      const mockUser = {
+        _id: USER_ID,
+        email: 'john@example.com',
+        governmentId: { name: 'id.jpg', storageKey: 'key-id', resourceType: 'image', format: 'jpg' },
+        proofOfAddress: { name: 'bill.pdf', storageKey: 'key-bill', resourceType: 'image', format: 'pdf' },
+        medicalRecords: { name: 'doc.png', storageKey: 'key-doc', resourceType: 'image', format: 'png' },
+      };
+      touristModel.findById.mockReturnValue({
+        select: jest.fn().mockReturnValue({
+          populate: jest.fn().mockReturnValue({
+            lean: jest.fn().mockResolvedValue(mockUser),
+          }),
+        }),
+      });
+
+      const result: any = await adminUsersService.getUserDetail(USER_ID);
+      expect(result.governmentId.url).toBe('https://signed.cloudinary.com/key-id');
+      expect(result.proofOfAddress.url).toBe('https://signed.cloudinary.com/key-bill');
+      expect(result.medicalRecords.url).toBe('https://signed.cloudinary.com/key-doc');
     });
   });
 

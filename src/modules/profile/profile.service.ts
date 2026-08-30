@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { Tourist, TouristDocument } from '../auth/schemas/tourist.schema';
+import { IDocumentUpload, Tourist, TouristDocument } from '../auth/schemas/tourist.schema';
 import { PersonalInfoDto } from './dto/personal-info.dto';
 import { SocialMediaDto } from './dto/social-media.dto';
 import { SubmitAssessmentDto } from './dto/submit-assessment.dto';
@@ -15,6 +15,15 @@ export class ProfileService {
     @InjectModel(Tourist.name) private readonly touristModel: Model<TouristDocument>,
     private readonly documentStorage: DocumentStorageService,
   ) {}
+
+  private formatDocumentInfo(doc?: IDocumentUpload) {
+    if (!doc) return null;
+    return {
+      name: doc.name,
+      url: doc.url || this.documentStorage.getDocumentUrl(doc.storageKey, doc.resourceType, doc.format) || undefined,
+      uploadedAt: doc.uploadedAt,
+    };
+  }
 
   private async getUserOrThrow(id: string): Promise<TouristDocument> {
     const user = await this.touristModel.findById(id);
@@ -41,9 +50,9 @@ export class ProfileService {
         residentialAddress: user.residentialAddress,
         phoneNumber: user.phoneNumber,
         socialMedia: user.socialMedia,
-        governmentId: user.governmentId ? { name: user.governmentId.name, uploadedAt: user.governmentId.uploadedAt } : null,
-        proofOfAddress: user.proofOfAddress ? { name: user.proofOfAddress.name, uploadedAt: user.proofOfAddress.uploadedAt } : null,
-        medicalRecords: user.medicalRecords ? { name: user.medicalRecords.name, uploadedAt: user.medicalRecords.uploadedAt } : null,
+        governmentId: this.formatDocumentInfo(user.governmentId),
+        proofOfAddress: this.formatDocumentInfo(user.proofOfAddress),
+        medicalRecords: this.formatDocumentInfo(user.medicalRecords),
         isPaid: user.isPaid,
         registrationStatus: user.registrationStatus,
         qualificationStep: user.qualificationStep || 1,

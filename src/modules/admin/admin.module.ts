@@ -12,10 +12,12 @@ import { AuditLog, AuditLogSchema } from '../../common/schemas/audit-log.schema'
 import { AuditService } from '../../common/services/audit.service';
 import { Tourist, TouristSchema } from '../auth/schemas/tourist.schema';
 import { AuthModule } from '../auth/auth.module';
+import { ProfileModule } from '../profile/profile.module';
 
 @Module({
   imports: [
     AuthModule,
+    ProfileModule,
     ConfigModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],

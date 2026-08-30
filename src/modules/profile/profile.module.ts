@@ -8,5 +8,6 @@ import { DocumentStorageService } from './document-storage.service';
   imports: [AuthModule],
   controllers: [ProfileController],
   providers: [ProfileService, DocumentStorageService],
+  exports: [DocumentStorageService],
 })
 export class ProfileModule {}
