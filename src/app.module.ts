@@ -35,13 +35,13 @@ import { PaymentsModule } from './modules/payments/payments.module';
         // This project does not yet have a separate migration job. Keep index
         // creation enabled so uniqueness constraints also exist on a fresh
         // Atlas database.
-        autoIndex: true,
+        autoIndex: process.env.NODE_ENV !== 'production',
         maxPoolSize: 10,
         minPoolSize: 0,
         wtimeoutMS: 10000,
-        connectTimeoutMS: 10000,
-        socketTimeoutMS: 30000,
-        serverSelectionTimeoutMS: 10000,
+        connectTimeoutMS: 20000,
+        socketTimeoutMS: 45000,
+        serverSelectionTimeoutMS: 20000,
         family: 4,
       }),
     }),
